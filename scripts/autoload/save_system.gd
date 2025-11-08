@@ -88,6 +88,9 @@ func load_game() -> bool:
 	GameState.player_stats.from_dict(save_data.player_stats)
 	GameState.essence = save_data.essence
 	
+	# Recalculate rates after loading upgrades
+	Economy.recalculate_all_rates()
+	
 	# Apply offline gains
 	TimeService.apply_offline_gains(offline_data)
 	
