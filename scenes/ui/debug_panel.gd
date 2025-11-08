@@ -1,7 +1,8 @@
 extends PanelContainer
 ## DebugPanel: Temporary debug UI for testing resource rates and upgrades
 ## 
-## Shows resource amounts, per-second rates, and upgrade purchase buttons.
+## Shows resource amounts, per-second rates, upgrade purchase buttons,
+## and save/load debug controls.
 
 @onready var resources_container: VBoxContainer = %ResourcesContainer
 @onready var upgrades_container: VBoxContainer = %UpgradesContainer
@@ -9,6 +10,10 @@ extends PanelContainer
 
 var resource_labels: Dictionary = {}  # {resource_id: Label}
 var upgrade_buttons: Dictionary = {}  # {upgrade_id: {button: Button, label: Label}}
+var last_saved_label: Label
+var save_controls_container: HBoxContainer
+var update_timer: Timer
+var wipe_confirmation_dialog: ConfirmationDialog
 
 func _ready() -> void:
 	# Connect to game state signals
@@ -17,6 +22,7 @@ func _ready() -> void:
 	GameState.rates_updated.connect(_on_rates_updated)
 	
 	# Setup UI
+	_setup_save_controls()
 	_setup_resources_ui()
 	_setup_upgrades_ui()
 	
@@ -24,8 +30,53 @@ func _ready() -> void:
 	refresh_timer.timeout.connect(_on_refresh_timer_timeout)
 	refresh_timer.start()
 	
+	# Create update timer for last saved label
+	update_timer = Timer.new()
+	update_timer.wait_time = 1.0
+	update_timer.timeout.connect(_update_last_saved_label)
+	add_child(update_timer)
+	update_timer.start()
+	
 	# Initial update
 	_update_all_displays()
+
+func _setup_save_controls() -> void:
+	# Add save controls section at the top
+	var vbox := get_node("MarginContainer/VBoxContainer") as VBoxContainer
+	
+	# Create controls container
+	save_controls_container = HBoxContainer.new()
+	save_controls_container.name = "SaveControlsContainer"
+	
+	# Add "Save Now" button
+	var save_button := Button.new()
+	save_button.text = "Save Now"
+	save_button.pressed.connect(_on_save_now_pressed)
+	save_controls_container.add_child(save_button)
+	
+	# Add "Wipe Save" button
+	var wipe_button := Button.new()
+	wipe_button.text = "Wipe Save"
+	wipe_button.pressed.connect(_on_wipe_save_pressed)
+	save_controls_container.add_child(wipe_button)
+	
+	# Add "Last saved" label
+	last_saved_label = Label.new()
+	last_saved_label.text = "Last saved: Never"
+	last_saved_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	last_saved_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	save_controls_container.add_child(last_saved_label)
+	
+	# Insert at position 1 (after title, before first separator)
+	vbox.add_child(save_controls_container)
+	vbox.move_child(save_controls_container, 1)
+	
+	# Create confirmation dialog for wipe
+	wipe_confirmation_dialog = ConfirmationDialog.new()
+	wipe_confirmation_dialog.dialog_text = "Are you sure you want to wipe all save data? This cannot be undone!"
+	wipe_confirmation_dialog.title = "Confirm Wipe Save"
+	wipe_confirmation_dialog.confirmed.connect(_on_wipe_confirmed)
+	add_child(wipe_confirmation_dialog)
 
 func _setup_resources_ui() -> void:
 	# Create labels for each resource
@@ -159,3 +210,22 @@ func _on_rates_updated() -> void:
 
 func _on_refresh_timer_timeout() -> void:
 	_update_all_displays()
+
+func _on_save_now_pressed() -> void:
+	SaveSystem.save()
+	_update_last_saved_label()
+
+func _on_wipe_save_pressed() -> void:
+	wipe_confirmation_dialog.popup_centered()
+
+func _on_wipe_confirmed() -> void:
+	SaveSystem.wipe()
+	_update_last_saved_label()
+
+func _update_last_saved_label() -> void:
+	if SaveSystem.last_saved_time == 0.0:
+		last_saved_label.text = "Last saved: Never"
+	else:
+		var now := Time.get_unix_time_from_system()
+		var seconds_ago := int(now - SaveSystem.last_saved_time)
+		last_saved_label.text = "Last saved: %ds ago" % seconds_ago

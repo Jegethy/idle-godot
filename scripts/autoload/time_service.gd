@@ -4,6 +4,9 @@ extends Node
 ## Manages the game's time-based updates and calculates
 ## offline progression when the player returns.
 
+# Offline progression cap (8 hours in seconds)
+const OFFLINE_HARD_CAP_SEC: float = Constants.OFFLINE_HARD_CAP_SEC
+
 var last_tick_time: float = 0.0
 var accumulated_time: float = 0.0
 
@@ -23,6 +26,38 @@ func _tick(delta: float) -> void:
 	# Perform game tick
 	Economy.apply_tick(delta)
 	last_tick_time = Time.get_unix_time_from_system()
+
+func apply_offline_progression(now: float, economy: Node, game_state: Node) -> void:
+	# Get last saved time from SaveSystem
+	var last_saved := SaveSystem.last_saved_time
+	if last_saved == 0.0:
+		# No previous save or first run, no offline progression
+		return
+	
+	# Calculate delta with clock skew protection
+	var delta_seconds: float = now - last_saved
+	if delta_seconds < 0:
+		# Clock skew detected, reset to now
+		push_warning("Clock skew detected (negative delta). Resetting last_saved_time.")
+		delta_seconds = 0.0
+	
+	# Apply hard cap
+	delta_seconds = clamp(delta_seconds, 0, OFFLINE_HARD_CAP_SEC)
+	
+	if delta_seconds > 0:
+		# Recompute rates using current upgrades (already loaded)
+		economy.recalculate_all_rates()
+		
+		# Apply offline gains for each resource
+		for resource_id in game_state.resources:
+			var resource: ResourceModel = game_state.resources[resource_id]
+			if resource.unlocked:
+				var per_second_rate: float = economy.get_per_second_rate(resource_id)
+				var gain: float = per_second_rate * delta_seconds
+				game_state.add_resource_amount(resource_id, gain)
+		
+		var hours: float = delta_seconds / 3600.0
+		print("Applied offline progression for %.2f hours (capped at %.1f hours)" % [hours, OFFLINE_HARD_CAP_SEC / 3600.0])
 
 func calculate_offline_progression(last_saved_time: float) -> Dictionary:
 	var current_time: float = Time.get_unix_time_from_system()

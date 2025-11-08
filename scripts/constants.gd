@@ -6,7 +6,7 @@ extends Node
 class_name Constants
 
 # Version
-const SAVE_VERSION: int = 1
+const SAVE_VERSION: int = 2
 
 # Tick rates (seconds)
 const IDLE_TICK_RATE: float = 1.0
@@ -14,6 +14,7 @@ const IDLE_TICK_RATE: float = 1.0
 # Offline progression
 const MAX_OFFLINE_HOURS: float = 8.0
 const MAX_OFFLINE_SECONDS: float = MAX_OFFLINE_HOURS * 3600.0
+const OFFLINE_HARD_CAP_SEC: float = MAX_OFFLINE_SECONDS  # 28,800 seconds (8 hours)
 
 # Prestige
 const PRESTIGE_THRESHOLD: float = 1_000_000.0

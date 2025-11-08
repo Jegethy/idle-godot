@@ -100,10 +100,61 @@ Formula: `essence_gain = floor((total / 1,000,000) ^ 0.6)`
 
 ## 💾 Save/Load Strategy
 
-- **File**: `user://savegame.json`
-- **Schema**: Versioned integer with migration support
-- **Content**: Resources, upgrades, items, player stats, essence, timestamp
-- **Offline**: Uses timestamp difference for offline progression calculation
+### Save Schema v2
+
+- **File**: `user://savegame.json` with atomic write via `.tmp` and rolling `.bak` backup
+- **Format**: Pretty-printed JSON (indented) for easier diffing
+- **Schema**: Versioned with migration support
+
+#### Schema Fields (v2)
+```json
+{
+  "version": 2,
+  "timestamp": 1699999999,
+  "last_saved_time": 1699999999,
+  "resources": {
+    "gold": {"amount": 1234.56, "unlocked": true}
+  },
+  "upgrades": {
+    "gold_mine_rate": {"level": 5, "type": "rate", ...}
+  },
+  "items": [],
+  "player_stats": {...},
+  "essence": 0.0
+}
+```
+
+### Atomic Write Process
+1. Write to `savegame.json.tmp`
+2. Flush and close temp file
+3. Rename `savegame.json` → `savegame.bak` (if exists)
+4. Rename `savegame.json.tmp` → `savegame.json`
+
+This ensures save data is never corrupted even if the game crashes during save.
+
+### Autosave
+- Automatically saves every 30 seconds
+- Saves on application exit
+- Manual save available via debug panel
+
+### Offline Progression
+
+On game load, calculates resource gains during absence:
+
+**Formula**: `gain = per_second_rate × min(time_away, OFFLINE_HARD_CAP_SEC)`
+
+- **Cap**: 8 hours (28,800 seconds) - configurable via `Constants.OFFLINE_HARD_CAP_SEC`
+- **Clock skew protection**: Negative time deltas are treated as 0 and reset `last_saved_time`
+- Uses current upgrade levels to compute per-second rates
+- Applied once on load before first tick
+
+**Example**: 
+- Player has 10 gold/sec from upgrades
+- Away for 1 hour (3,600 seconds)
+- On return: +36,000 gold
+
+If away for 12 hours, gain is capped at 8 hours:
+- On return: +288,000 gold (10/sec × 8 hours)
 
 ## 🎨 Coding Conventions
 
@@ -119,8 +170,10 @@ Formula: `essence_gain = floor((total / 1,000,000) ^ 0.6)`
 - ✅ **PR1**: Project scaffold, singleton stubs, basic main scene
 
 ### Planned
-- ⬜ **PR2**: Implement Resource & Upgrade models + Economy tick
-- ⬜ **PR3**: SaveSystem + offline progression
+- ✅ **PR1**: Project scaffold, singleton stubs, basic main scene
+- ✅ **PR2**: Implement Resource & Upgrade models + Economy tick
+- ✅ **PR3**: SaveSystem + offline progression + autosave + debug controls
+- ⬜ **PR4**: UI panels (resources, upgrades, tooltips)
 - ⬜ **PR4**: UI panels (resources, upgrades, tooltips)
 - ⬜ **PR5**: Cost scaling + multiple upgrade types
 - ⬜ **PR6**: Items & InventorySystem
@@ -158,6 +211,7 @@ upgrades["upgrade_id"] = new_upgrade
 | Version | Changes |
 |---------|---------|
 | 1       | Initial schema with resources, upgrades, items, player stats, essence |
+| 2       | Added `last_saved_time` for offline progression, ensured all known resources present, atomic write with backup |
 
 ## 🛡️ Security & Integrity
 
