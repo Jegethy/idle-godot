@@ -4,21 +4,77 @@ extends Node
 ## Handles tick-based resource generation, upgrade application,
 ## cost scaling, and prestige formulas.
 
+const EXP_GROWTH := 1.15
+
+# Cached per-second rates for UI queries
+var per_second_rates: Dictionary = {}  # {resource_id: float}
+
 func _ready() -> void:
 	print("Economy initialized")
 
 func calculate_income_per_second(resource: ResourceModel) -> float:
-	# Base rate + sum of modifiers * global multipliers
-	var total_rate: float = resource.get_total_rate()
-	total_rate *= GameState.player_stats.idle_rate_multiplier
-	return total_rate
+	return get_per_second_rate(resource.id)
+
+func get_per_second_rate(resource_id: String) -> float:
+	# Return cached rate if available
+	if per_second_rates.has(resource_id):
+		return per_second_rates[resource_id]
+	
+	# Otherwise compute it
+	return compute_resource_rate(resource_id)
+
+func compute_resource_rate(resource_id: String) -> float:
+	if not GameState.resources.has(resource_id):
+		return 0.0
+	
+	var resource: ResourceModel = GameState.resources[resource_id]
+	if not resource.unlocked:
+		return 0.0
+	
+	# Start with base rate
+	var rate_adders: float = resource.base_rate
+	var multiplier_factors: float = 1.0
+	
+	# Apply upgrade effects
+	for upgrade_id in GameState.upgrades:
+		var upgrade: UpgradeModel = GameState.upgrades[upgrade_id]
+		
+		# Skip upgrades that don't target this resource or have level 0
+		if upgrade.target != resource_id or upgrade.level == 0:
+			continue
+		
+		match upgrade.type:
+			UpgradeModel.UpgradeType.RATE:
+				# Additive: base_bonus * level
+				rate_adders += upgrade.base_bonus * upgrade.level
+			UpgradeModel.UpgradeType.MULTIPLIER:
+				# Multiplicative: (1 + base_bonus * level)
+				multiplier_factors *= (1.0 + upgrade.base_bonus * upgrade.level)
+	
+	# Calculate effective rate
+	var effective_rate: float = rate_adders * multiplier_factors
+	
+	# Apply global player stat multiplier
+	effective_rate *= GameState.player_stats.idle_rate_multiplier
+	
+	return effective_rate
+
+func recalculate_all_rates() -> void:
+	# Recalculate and cache all resource rates
+	per_second_rates.clear()
+	for resource_id in GameState.resources:
+		per_second_rates[resource_id] = compute_resource_rate(resource_id)
+	GameState.rates_updated.emit()
 
 func apply_tick(delta: float) -> void:
+	# Recalculate rates every tick
+	recalculate_all_rates()
+	
 	# Apply resource generation for this tick
 	for resource_id in GameState.resources:
 		var resource: ResourceModel = GameState.resources[resource_id]
 		if resource.unlocked:
-			var income: float = calculate_income_per_second(resource) * delta
+			var income: float = get_per_second_rate(resource_id) * delta
 			GameState.add_resource_amount(resource_id, income)
 
 func purchase_upgrade(upgrade_id: String) -> bool:
@@ -31,18 +87,12 @@ func purchase_upgrade(upgrade_id: String) -> bool:
 	# TODO: Support multi-resource costs
 	if GameState.spend_resource("gold", cost):
 		upgrade.level += 1
-		_apply_upgrade_effect(upgrade)
 		GameState.upgrade_purchased.emit(upgrade_id, upgrade.level)
+		# Recalculate rates immediately after purchase
+		recalculate_all_rates()
 		return true
 	
 	return false
-
-func _apply_upgrade_effect(upgrade: UpgradeModel) -> void:
-	# Apply the upgrade's effect to the target
-	# TODO: More sophisticated effect system
-	if GameState.resources.has(upgrade.target):
-		var resource: ResourceModel = GameState.resources[upgrade.target]
-		resource.add_modifier(upgrade.effect_value)
 
 func calculate_prestige_essence(primary_resource_total: float) -> float:
 	# essence_gain = floor( (total / threshold) ^ exponent )

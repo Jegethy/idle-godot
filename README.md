@@ -53,8 +53,32 @@ idle-godot/
 ### Idle Loop
 Every tick (1 second default), resources generate based on:
 ```
-income = (base_rate + sum(modifiers)) * global_multipliers
+effective_rate = (base_rate + sum(rate_adders)) * product(multiplier_factors)
 ```
+
+Where:
+- **rate_adders**: All rate-type upgrades targeting the resource: `base_bonus * level`
+- **multiplier_factors**: For each multiplier-type upgrade: `(1 + base_bonus * level)`
+- Final rate is multiplied by global player stat multiplier
+
+**Example**: Gold with base_rate=1, one rate upgrade (+2 per level) at level 3, one multiplier upgrade (x0.1 per level) at level 2:
+```
+effective_rate = (1 + 2*3) * (1 + 0.1*2) * 1.0
+               = 7 * 1.2 * 1.0
+               = 8.4 gold/sec
+```
+
+### Rate Calculation Formula
+
+Resources are configured in `data/resources.json` with base production rates.
+Upgrades are defined in `data/upgrades.json` with two types:
+
+1. **Rate Upgrades** (`type: "rate"`): Add flat amounts to production
+   - Effect: `base_bonus * level` added to rate
+   
+2. **Multiplier Upgrades** (`type: "multiplier"`): Multiply production
+   - Effect: `(1 + base_bonus * level)` multiplied to rate
+   - Multiple multipliers stack multiplicatively
 
 ### Offline Progression
 On game load, calculates resource gains during absence:
