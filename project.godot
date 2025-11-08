@@ -20,6 +20,8 @@ TimeService="*res://scripts/autoload/time_service.gd"
 SaveSystem="*res://scripts/autoload/save_system.gd"
 CombatSystem="*res://scripts/autoload/combat_system.gd"
 InventorySystem="*res://scripts/autoload/inventory_system.gd"
+UpgradeService="*res://scripts/systems/UpgradeService.gd"
+UnlockService="*res://scripts/systems/UnlockService.gd"
 
 [display]
 

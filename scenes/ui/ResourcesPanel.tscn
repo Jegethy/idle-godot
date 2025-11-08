@@ -1,0 +1,59 @@
+[gd_scene load_steps=2 format=3 uid="uid://c7d8e9f0g1h2i"]
+
+[ext_resource type="Script" path="res://scenes/ui/ResourcesPanel.gd" id="1_resources"]
+
+[node name="ResourcesPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 150)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_resources")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Resources"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HeaderRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="NameHeader" type="Label" parent="MarginContainer/VBoxContainer/HeaderRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Name"
+
+[node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AmountHeader" type="Label" parent="MarginContainer/VBoxContainer/HeaderRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Amount"
+horizontal_alignment = 2
+
+[node name="RateHeader" type="Label" parent="MarginContainer/VBoxContainer/HeaderRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Rate/sec"
+horizontal_alignment = 2
+
+[node name="ResourcesList" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 5

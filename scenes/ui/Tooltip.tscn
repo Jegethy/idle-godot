@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=3 uid="uid://b5q6y7w8x9z0a"]
+
+[ext_resource type="Script" path="res://scenes/ui/Tooltip.gd" id="1_tooltip"]
+
+[node name="Tooltip" type="PanelContainer"]
+custom_minimum_size = Vector2(250, 0)
+offset_right = 250.0
+offset_bottom = 100.0
+mouse_filter = 2
+script = ExtResource("1_tooltip")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="ContentLabel" type="RichTextLabel" parent="MarginContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(230, 0)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false

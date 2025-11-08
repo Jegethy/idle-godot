@@ -39,13 +39,16 @@ func _init(
 	type = p_type
 
 func get_current_cost() -> float:
+	return get_cost_at_level(level)
+
+func get_cost_at_level(at_level: int) -> float:
 	match cost_scaling_type:
 		Constants.CostScalingType.EXPONENTIAL:
-			return base_cost * pow(cost_growth_factor, level)
+			return base_cost * pow(cost_growth_factor, at_level)
 		Constants.CostScalingType.QUADRATIC:
-			return base_cost * (1.0 + level + level * level * 0.1)
+			return base_cost * (1.0 + at_level + at_level * at_level * 0.1)
 		Constants.CostScalingType.LINEAR:
-			return base_cost * (1.0 + level * 0.5)
+			return base_cost * (1.0 + at_level * 0.5)
 		_:
 			return base_cost
 

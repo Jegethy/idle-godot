@@ -80,6 +80,57 @@ Upgrades are defined in `data/upgrades.json` with two types:
    - Effect: `(1 + base_bonus * level)` multiplied to rate
    - Multiple multipliers stack multiplicatively
 
+### Upgrade Bulk Purchase Formula
+
+The game supports purchasing multiple upgrade levels at once (x1, x10, x100, or Max).
+
+#### Exponential Cost Scaling
+
+For upgrades with exponential cost scaling (`cost_scaling_type: "exponential"`):
+
+**Formula**: 
+```
+cost_bulk(L, n) = base_cost × growth^L × (growth^n - 1) / (growth - 1)
+```
+
+Where:
+- `L` = current level
+- `n` = number of levels to purchase
+- `growth` = cost_growth_factor (e.g., 1.15)
+- `base_cost` = initial cost at level 0
+
+This is the geometric series sum formula, which is exact and efficient for exponential scaling.
+
+**Example**: Purchasing 10 levels of an upgrade with base_cost=100, growth=1.15, starting at level 5:
+```
+cost_bulk(5, 10) = 100 × 1.15^5 × (1.15^10 - 1) / (1.15 - 1)
+                 ≈ 100 × 2.0114 × 2.6600 / 0.15
+                 ≈ 3,571 gold
+```
+
+#### Quadratic/Linear Cost Scaling
+
+For quadratic and linear scaling, costs are calculated iteratively by summing individual level costs:
+```
+cost_bulk(L, n) = Σ(i=0 to n-1) cost(L + i)
+```
+
+This approach is acceptable for reasonable quantities (n ≤ 1000). A hard cap prevents performance issues.
+
+#### Max Purchase Strategy
+
+When "Max" mode is selected, the system calculates the maximum affordable quantity:
+
+**For exponential scaling**: Binary search algorithm
+1. Find upper bound by doubling (1, 2, 4, 8, ...) until cost exceeds available gold
+2. Binary search between 0 and upper_bound to find exact maximum
+3. Time complexity: O(log n)
+
+**For quadratic/linear scaling**: Iterative search
+1. Calculate bulk cost for increasing quantities (1, 2, 3, ...)
+2. Stop when cost exceeds available gold
+3. Capped at 1000 iterations for performance
+
 ### Offline Progression
 On game load, calculates resource gains during absence:
 - Capped at 8 hours (configurable)
@@ -168,13 +219,11 @@ If away for 12 hours, gain is capped at 8 hours:
 
 ### Completed
 - ✅ **PR1**: Project scaffold, singleton stubs, basic main scene
-
-### Planned
-- ✅ **PR1**: Project scaffold, singleton stubs, basic main scene
 - ✅ **PR2**: Implement Resource & Upgrade models + Economy tick
 - ✅ **PR3**: SaveSystem + offline progression + autosave + debug controls
-- ⬜ **PR4**: UI panels (resources, upgrades, tooltips)
-- ⬜ **PR4**: UI panels (resources, upgrades, tooltips)
+- ✅ **PR4**: Structured Game UI + Upgrade Purchase Enhancements + Tooltips + Number Formatting
+
+### Planned
 - ⬜ **PR5**: Cost scaling + multiple upgrade types
 - ⬜ **PR6**: Items & InventorySystem
 - ⬜ **PR7**: CombatSystem with wave simulation

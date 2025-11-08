@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://c0b7yh3nl6v8f"]
 
 [ext_resource type="Script" path="res://scenes/game/main_debug.gd" id="1_main_debug"]
-[ext_resource type="PackedScene" uid="uid://dpq3l8r2ygm5j" path="res://scenes/ui/debug_panel.tscn" id="2_debug_panel"]
+[ext_resource type="PackedScene" uid="uid://g9h0i1j2k3l4m" path="res://scenes/ui/MainHUD.tscn" id="2_main_hud"]
 
 [node name="MainDebug" type="Control"]
 layout_mode = 3
@@ -12,5 +12,5 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_main_debug")
 
-[node name="DebugPanel" parent="." instance=ExtResource("2_debug_panel")]
+[node name="MainHUD" parent="." instance=ExtResource("2_main_hud")]
 layout_mode = 1
