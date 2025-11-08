@@ -1,0 +1,33 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; but you can also configure it in a text editor.
+
+config_version=5
+
+[application]
+
+config/name="Idle Godot"
+config/description="A 2D idle/incremental game with combat and inventory systems"
+run/main_scene="res://scenes/game/main.tscn"
+config/features=PackedStringArray("4.3", "Forward Plus")
+config/icon="res://icon.svg"
+
+[autoload]
+
+GameState="*res://scripts/autoload/game_state.gd"
+Economy="*res://scripts/autoload/economy.gd"
+TimeService="*res://scripts/autoload/time_service.gd"
+SaveSystem="*res://scripts/autoload/save_system.gd"
+CombatSystem="*res://scripts/autoload/combat_system.gd"
+InventorySystem="*res://scripts/autoload/inventory_system.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+
+[rendering]
+
+renderer/rendering_method="forward_plus"
+textures/canvas_textures/default_texture_filter=0
