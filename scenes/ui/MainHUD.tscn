@@ -1,0 +1,76 @@
+[gd_scene load_steps=7 format=3 uid="uid://g9h0i1j2k3l4m"]
+
+[ext_resource type="Script" path="res://scenes/ui/MainHUD.gd" id="1_main_hud"]
+[ext_resource type="PackedScene" uid="uid://c7d8e9f0g1h2i" path="res://scenes/ui/ResourcesPanel.tscn" id="2_resources"]
+[ext_resource type="PackedScene" uid="uid://d3e4f5g6h7i8j" path="res://scenes/ui/UpgradesPanel.tscn" id="3_upgrades"]
+[ext_resource type="PackedScene" uid="uid://e5f6g7h8i9j0k" path="res://scenes/ui/StatsPanel.tscn" id="4_stats"]
+[ext_resource type="PackedScene" uid="uid://f7g8h9i0j1k2l" path="res://scenes/ui/PrestigePanel.tscn" id="5_prestige"]
+[ext_resource type="PackedScene" uid="uid://b5q6y7w8x9z0a" path="res://scenes/ui/Tooltip.tscn" id="6_tooltip"]
+
+[node name="MainHUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_main_hud")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Idle Godot"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="TopSection" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="LeftColumn" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TopSection"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ResourcesPanel" parent="MarginContainer/VBoxContainer/TopSection/LeftColumn" instance=ExtResource("2_resources")]
+layout_mode = 2
+
+[node name="StatsPanel" parent="MarginContainer/VBoxContainer/TopSection/LeftColumn" instance=ExtResource("4_stats")]
+layout_mode = 2
+
+[node name="RightColumn" type="VBoxContainer" parent="MarginContainer/VBoxContainer/TopSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="UpgradesPanel" parent="MarginContainer/VBoxContainer/TopSection/RightColumn" instance=ExtResource("3_upgrades")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PrestigePanel" parent="MarginContainer/VBoxContainer/TopSection/RightColumn" instance=ExtResource("5_prestige")]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="Tooltip" parent="." instance=ExtResource("6_tooltip")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
