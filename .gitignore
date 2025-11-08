@@ -35,3 +35,4 @@ dist/
 # Logs
 *.log
 logs/
+*.bak

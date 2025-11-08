@@ -72,21 +72,12 @@ func compute_bulk_cost(upgrade_id: StringName, quantity: int) -> float:
 			# Cap at reasonable limit to prevent performance issues
 			var safe_quantity := mini(quantity, 1000)
 			for i in range(safe_quantity):
-				var temp_level := current_level + i
-				# Temporarily set level to calculate cost
-				var original_level := upgrade.level
-				upgrade.level = temp_level
-				total_cost += upgrade.get_current_cost()
-				upgrade.level = original_level
+				total_cost += upgrade.get_cost_at_level(current_level + i)
 		
 		_:
 			# Custom or unsupported scaling - use iterative
 			for i in range(quantity):
-				var temp_level := current_level + i
-				var original_level := upgrade.level
-				upgrade.level = temp_level
-				total_cost += upgrade.get_current_cost()
-				upgrade.level = original_level
+				total_cost += upgrade.get_cost_at_level(current_level + i)
 	
 	return total_cost
 
