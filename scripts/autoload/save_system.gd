@@ -192,15 +192,15 @@ func load_game() -> bool:
 	GameState.player_stats.from_dict(save_data.player_stats)
 	GameState.essence = save_data.essence
 	
+	# Store last_saved_time for offline progression and UI display
+	last_saved_time = save_data.last_saved_time
+	
 	# Recalculate rates after loading upgrades
 	Economy.recalculate_all_rates()
 	
 	# Apply offline progression using new method
 	var now := Time.get_unix_time_from_system()
 	TimeService.apply_offline_progression(now, Economy, GameState)
-	
-	# Store last_saved_time for UI display
-	last_saved_time = save_data.last_saved_time
 	
 	print("Game loaded successfully")
 	return true
