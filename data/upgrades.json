@@ -1,0 +1,40 @@
+{
+	"upgrades": [
+		{
+			"id": "gold_mine_rate",
+			"display_name": "Gold Mine",
+			"description": "Increases gold production by a flat amount",
+			"type": "rate",
+			"target_resource": "gold",
+			"base_cost": 10.0,
+			"cost_scaling_type": "exponential",
+			"cost_growth_factor": 1.15,
+			"base_bonus": 2.0,
+			"unlocked": true
+		},
+		{
+			"id": "gold_press_multiplier",
+			"display_name": "Gold Press",
+			"description": "Multiplies gold production",
+			"type": "multiplier",
+			"target_resource": "gold",
+			"base_cost": 100.0,
+			"cost_scaling_type": "exponential",
+			"cost_growth_factor": 1.15,
+			"base_bonus": 0.1,
+			"unlocked": true
+		},
+		{
+			"id": "super_mine_exponential",
+			"display_name": "Super Mine",
+			"description": "Massive boost to gold production",
+			"type": "rate",
+			"target_resource": "gold",
+			"base_cost": 500.0,
+			"cost_scaling_type": "exponential",
+			"cost_growth_factor": 1.15,
+			"base_bonus": 5.0,
+			"unlocked": true
+		}
+	]
+}

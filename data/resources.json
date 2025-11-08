@@ -1,0 +1,16 @@
+{
+	"resources": [
+		{
+			"id": "gold",
+			"display_name": "Gold",
+			"base_rate": 1.0,
+			"unlocked": true
+		},
+		{
+			"id": "essence",
+			"display_name": "Essence",
+			"base_rate": 0.0,
+			"unlocked": false
+		}
+	]
+}
