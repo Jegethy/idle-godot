@@ -22,6 +22,9 @@ var prestige_settings: Dictionary = {}
 var current_wave: int = 0
 var lifetime_enemies_defeated: int = 0
 
+# Inventory & Equipment state (v4)
+var equipped_slots: Dictionary = {}  # {slot: instance_id}
+
 func _init() -> void:
 	timestamp = Time.get_unix_time_from_system()
 	last_saved_time = timestamp
@@ -41,7 +44,8 @@ func to_dict() -> Dictionary:
 		"essence_spent": essence_spent,
 		"prestige_settings": prestige_settings,
 		"current_wave": current_wave,
-		"lifetime_enemies_defeated": lifetime_enemies_defeated
+		"lifetime_enemies_defeated": lifetime_enemies_defeated,
+		"equipped_slots": equipped_slots
 	}
 
 func from_dict(data: Dictionary) -> void:
@@ -59,6 +63,7 @@ func from_dict(data: Dictionary) -> void:
 	prestige_settings = data.get("prestige_settings", {})
 	current_wave = data.get("current_wave", 0)
 	lifetime_enemies_defeated = data.get("lifetime_enemies_defeated", 0)
+	equipped_slots = data.get("equipped_slots", {})
 
 func migrate(from_version: int) -> void:
 	# Apply migrations sequentially from old version to current
@@ -66,6 +71,8 @@ func migrate(from_version: int) -> void:
 		_migrate_v1_to_v2()
 	if from_version < 3:
 		_migrate_v2_to_v3()
+	if from_version < 4:
+		_migrate_v3_to_v4()
 
 func _migrate_v1_to_v2() -> void:
 	# Set version to 2
@@ -115,3 +122,17 @@ func _migrate_v2_to_v3() -> void:
 		}
 	
 	print("Migrated save from v2 to v3")
+
+func _migrate_v3_to_v4() -> void:
+	# Set version to 4
+	version = 4
+	
+	# Initialize equipped_slots if not present
+	if equipped_slots.is_empty():
+		equipped_slots = {}
+	
+	# Ensure inventory is an array
+	if not inventory is Array:
+		inventory = []
+	
+	print("Migrated save from v3 to v4")

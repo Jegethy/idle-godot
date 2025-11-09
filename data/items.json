@@ -1,0 +1,118 @@
+{
+	"items": [
+		{
+			"id": "iron_sword",
+			"name": "Iron Sword",
+			"slot": "weapon",
+			"rarity": "common",
+			"stackable": false,
+			"description": "A basic iron sword.",
+			"effects": [
+				{"type": "combat_attack_add", "value": 5.0},
+				{"type": "idle_rate_multiplier", "value": 0.05}
+			],
+			"drop_weight": 15
+		},
+		{
+			"id": "rusty_sword",
+			"name": "Rusty Sword",
+			"slot": "weapon",
+			"rarity": "common",
+			"stackable": false,
+			"description": "An old rusty sword.",
+			"effects": [
+				{"type": "combat_attack_add", "value": 3.0}
+			],
+			"drop_weight": 20
+		},
+		{
+			"id": "steel_armor",
+			"name": "Steel Armor",
+			"slot": "armor",
+			"rarity": "uncommon",
+			"stackable": false,
+			"description": "Sturdy steel armor.",
+			"effects": [
+				{"type": "combat_defense_add", "value": 8.0},
+				{"type": "combat_attack_mult", "value": 0.1}
+			],
+			"drop_weight": 10
+		},
+		{
+			"id": "bone_shield",
+			"name": "Bone Shield",
+			"slot": "armor",
+			"rarity": "uncommon",
+			"stackable": false,
+			"description": "A shield made from bones.",
+			"effects": [
+				{"type": "combat_defense_add", "value": 6.0}
+			],
+			"drop_weight": 12
+		},
+		{
+			"id": "health_potion",
+			"name": "Health Potion",
+			"slot": "consumable",
+			"rarity": "common",
+			"stackable": true,
+			"description": "Restores health (not yet implemented).",
+			"effects": [],
+			"drop_weight": 30
+		},
+		{
+			"id": "crit_ring",
+			"name": "Ring of Precision",
+			"slot": "trinket1",
+			"rarity": "rare",
+			"stackable": false,
+			"description": "Increases critical hit chance.",
+			"effects": [
+				{"type": "combat_crit_chance_add", "value": 0.05},
+				{"type": "combat_crit_multiplier_add", "value": 0.2}
+			],
+			"drop_weight": 5
+		},
+		{
+			"id": "speed_boots",
+			"name": "Swift Boots",
+			"slot": "trinket2",
+			"rarity": "rare",
+			"stackable": false,
+			"description": "Increases combat speed.",
+			"effects": [
+				{"type": "combat_speed_add", "value": 0.2}
+			],
+			"drop_weight": 6
+		},
+		{
+			"id": "epic_gem",
+			"name": "Epic Power Gem",
+			"slot": "accessory",
+			"rarity": "epic",
+			"stackable": false,
+			"description": "A powerful gem that boosts all stats.",
+			"effects": [
+				{"type": "combat_attack_mult", "value": 0.15},
+				{"type": "combat_defense_mult", "value": 0.15},
+				{"type": "idle_rate_multiplier", "value": 0.1}
+			],
+			"drop_weight": 3
+		},
+		{
+			"id": "legendary_artifact",
+			"name": "Legendary Artifact",
+			"slot": "accessory",
+			"rarity": "legendary",
+			"stackable": false,
+			"description": "An ancient artifact of immense power.",
+			"effects": [
+				{"type": "combat_attack_mult", "value": 0.3},
+				{"type": "combat_defense_mult", "value": 0.2},
+				{"type": "idle_rate_multiplier", "value": 0.25},
+				{"type": "combat_crit_chance_add", "value": 0.1}
+			],
+			"drop_weight": 1
+		}
+	]
+}

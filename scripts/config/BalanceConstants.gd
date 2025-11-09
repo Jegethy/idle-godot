@@ -39,3 +39,24 @@ const BOSS_ATTACK_MULTIPLIER: float = 2.0  # Boss enemies have 2x attack
 
 # Combat Simulation Limits
 const MAX_SIM_TICKS: int = 1000  # Maximum ticks to prevent infinite loops
+
+# Inventory & Equipment Constants
+const INVENTORY_SOFT_CAP: int = 200  # Soft limit on inventory entries
+const MAX_STACK: int = 999  # Maximum stack size for stackable items
+const ITEM_ATTACK_MULT_CAP: float = 5.0  # Max +500% attack multiplier from items
+const ITEM_IDLE_MULT_CAP: float = 10.0  # Max +1000% idle rate multiplier from items
+
+# Gear Slots
+const GEAR_SLOTS: Array[String] = ["weapon", "armor", "trinket1", "trinket2", "accessory"]
+
+# Rarity Order
+const RARITY_ORDER: Array[String] = ["common", "uncommon", "rare", "epic", "legendary"]
+
+# Rarity Colors (hex codes)
+const RARITY_COLORS: Dictionary = {
+	"common": "#CCCCCC",
+	"uncommon": "#4CAF50",
+	"rare": "#2196F3",
+	"epic": "#9C27B0",
+	"legendary": "#FF9800"
+}

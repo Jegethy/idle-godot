@@ -51,11 +51,18 @@ func compute_resource_rate(resource_id: String) -> float:
 				# Multiplicative: (1 + base_bonus * level)
 				multiplier_factors *= (1.0 + upgrade.base_bonus * upgrade.level)
 	
+	# Apply item additive bonuses
+	if GameState.idle_additive.has(resource_id):
+		rate_adders += GameState.idle_additive[resource_id]
+	
 	# Calculate effective rate
 	var effective_rate: float = rate_adders * multiplier_factors
 	
 	# Apply global player stat multiplier
 	effective_rate *= GameState.player_stats.idle_rate_multiplier
+	
+	# Apply item idle multiplier
+	effective_rate *= GameState.idle_multiplier_extra
 	
 	# Apply essence multiplier from prestige
 	effective_rate *= PrestigeService.get_essence_multiplier()

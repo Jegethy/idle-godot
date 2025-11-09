@@ -61,7 +61,7 @@ func apply_rewards(rewards: Dictionary) -> void:
 		# Update lifetime gold for prestige tracking
 		GameState.lifetime_gold += gold_amount
 	
-	# Add items (simplified - just count them for now)
+	# Add items via InventorySystem
 	var items: Array = rewards.get("items", [])
 	for item_dict in items:
 		if not item_dict is Dictionary:
@@ -69,6 +69,6 @@ func apply_rewards(rewards: Dictionary) -> void:
 		var item_id: String = item_dict.get("item_id", "")
 		var quantity: int = item_dict.get("quantity", 1)
 		
-		# For now, just emit signal (actual inventory integration is future work)
+		# Add item to inventory using InventorySystem
 		if not item_id.is_empty():
-			GameState.item_acquired.emit(item_id, quantity)
+			InventorySystem.add_item(item_id, quantity)

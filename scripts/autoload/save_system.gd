@@ -103,6 +103,9 @@ func save_game() -> bool:
 	for item in GameState.items:
 		save_data.inventory.append(item.to_dict())
 	
+	# Serialize equipped slots
+	save_data.equipped_slots = GameState.equipped_slots.duplicate()
+	
 	# Serialize player stats
 	save_data.player_stats = GameState.player_stats.to_dict()
 	save_data.essence = GameState.essence
@@ -196,7 +199,15 @@ func load_game() -> bool:
 			GameState.upgrades[upgrade_id].from_dict(save_data.upgrades[upgrade_id])
 	
 	# Load items
-	# TODO: Deserialize items properly
+	GameState.items.clear()
+	for item_data in save_data.inventory:
+		if item_data is Dictionary:
+			var item := ItemModel.new()
+			item.from_dict(item_data)
+			GameState.items.append(item)
+	
+	# Load equipped slots
+	GameState.equipped_slots = save_data.equipped_slots.duplicate()
 	
 	# Load player stats
 	GameState.player_stats.from_dict(save_data.player_stats)
@@ -212,6 +223,9 @@ func load_game() -> bool:
 	
 	# Recalculate rates after loading upgrades
 	Economy.recalculate_all_rates()
+	
+	# Recompute item modifiers
+	InventorySystem.recompute_all_modifiers()
 	
 	# Apply offline progression using new method
 	var now := Time.get_unix_time_from_system()
