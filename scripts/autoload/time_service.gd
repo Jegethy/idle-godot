@@ -55,6 +55,10 @@ func apply_offline_progression(now: float, economy: Node, game_state: Node) -> v
 				var per_second_rate: float = economy.get_per_second_rate(resource_id)
 				var gain: float = per_second_rate * delta_seconds
 				game_state.add_resource_amount(resource_id, gain)
+				
+				# Track lifetime_gold for prestige (only for gold, only positive)
+				if resource_id == "gold" and gain > 0:
+					PrestigeService.update_lifetime_gold(gain)
 		
 		var hours: float = delta_seconds / 3600.0
 		print("Applied offline progression for %.2f hours (capped at %.1f hours)" % [hours, OFFLINE_HARD_CAP_SEC / 3600.0])

@@ -57,6 +57,9 @@ func compute_resource_rate(resource_id: String) -> float:
 	# Apply global player stat multiplier
 	effective_rate *= GameState.player_stats.idle_rate_multiplier
 	
+	# Apply essence multiplier from prestige
+	effective_rate *= PrestigeService.get_essence_multiplier()
+	
 	return effective_rate
 
 func recalculate_all_rates() -> void:
@@ -76,6 +79,10 @@ func apply_tick(delta: float) -> void:
 		if resource.unlocked:
 			var income: float = get_per_second_rate(resource_id) * delta
 			GameState.add_resource_amount(resource_id, income)
+			
+			# Track lifetime_gold for prestige (only for gold, only positive)
+			if resource_id == "gold" and income > 0:
+				PrestigeService.update_lifetime_gold(income)
 
 func purchase_upgrade(upgrade_id: String) -> bool:
 	var upgrade: UpgradeModel = GameState.get_upgrade(upgrade_id)

@@ -37,7 +37,7 @@ func load() -> bool:
 	return load_game()
 
 ## Wipe save files and reset to defaults
-func wipe() -> void:
+func wipe(include_essence: bool = false) -> void:
 	# Delete save files
 	var save_path := Constants.SAVE_FILE_PATH
 	var backup_path := save_path.replace(".json", ".bak")
@@ -68,7 +68,11 @@ func wipe() -> void:
 	last_saved_time = Time.get_unix_time_from_system()
 	
 	# Reset other state
-	GameState.essence = 0.0
+	if include_essence:
+		GameState.essence = 0.0
+		GameState.lifetime_gold = 0.0
+		GameState.total_prestiges = 0
+		GameState.essence_spent = 0.0
 	GameState.items.clear()
 	
 	# Recalculate rates
@@ -102,6 +106,10 @@ func save_game() -> bool:
 	# Serialize player stats
 	save_data.player_stats = GameState.player_stats.to_dict()
 	save_data.essence = GameState.essence
+	save_data.lifetime_gold = GameState.lifetime_gold
+	save_data.total_prestiges = GameState.total_prestiges
+	save_data.essence_spent = GameState.essence_spent
+	save_data.prestige_settings = {"formula_version": BalanceConstants.PRESTIGE_FORMULA_VERSION}
 	
 	# Atomic write: write to .tmp, then rename
 	var save_path := Constants.SAVE_FILE_PATH
@@ -191,6 +199,9 @@ func load_game() -> bool:
 	# Load player stats
 	GameState.player_stats.from_dict(save_data.player_stats)
 	GameState.essence = save_data.essence
+	GameState.lifetime_gold = save_data.lifetime_gold
+	GameState.total_prestiges = save_data.total_prestiges
+	GameState.essence_spent = save_data.essence_spent
 	
 	# Store last_saved_time for offline progression and UI display
 	last_saved_time = save_data.last_saved_time

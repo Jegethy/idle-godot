@@ -38,6 +38,7 @@ idle-godot/
 - **SaveSystem**: JSON serialization/deserialization, versioned schema migration
 - **CombatSystem**: Enemy spawning, combat simulation, reward generation
 - **InventorySystem**: Item management, equip/unequip, stat modifiers
+- **PrestigeService**: Prestige mechanics, essence currency, reset flow
 
 ### Data Models
 
@@ -143,24 +144,95 @@ On game load, calculates resource gains during absence:
 - Apply effects
 - Recalculate next cost using scaling formulas
 
-### Prestige System
-Formula: `essence_gain = floor((total / 1,000,000) ^ 0.6)`
-- Resets most progress
-- Grants permanent "Essence" currency
-- Unlocks advanced upgrades and multipliers
+## 🌟 Prestige & Essence
+
+The Prestige system allows players to reset their progress in exchange for **Essence**, a permanent currency that provides multiplicative bonuses to idle production.
+
+### Prestige Requirements
+
+To prestige, you must meet **at least one** of these conditions:
+- **Lifetime Gold** ≥ 2,000,000 (cumulative gold earned across all time)
+- **Current Gold** ≥ 500,000
+
+### Essence Gain Formula
+
+When you prestige, essence is calculated from your **lifetime gold**:
+
+```
+essence_gain = floor((lifetime_gold / 1,000,000) ^ 0.6)
+```
+
+**Example Calculations:**
+- 1,000,000 lifetime gold → floor(1^0.6) = **1 essence**
+- 5,000,000 lifetime gold → floor(5^0.6) = floor(2.626...) = **2 essence**
+- 10,000,000 lifetime gold → floor(10^0.6) = floor(3.981...) = **3 essence**
+- 100,000,000 lifetime gold → floor(100^0.6) = floor(15.848...) = **15 essence**
+
+### Soft Cap
+
+For very high lifetime gold values (> 1 billion), a soft cap applies to prevent exponential growth:
+
+```
+if lifetime_gold > 1,000,000,000:
+    soft_cap_factor = (1,000,000,000 / lifetime_gold) ^ 0.15
+    essence_gain = floor(raw_essence × soft_cap_factor)
+```
+
+This ensures diminishing returns at extreme values while still rewarding long-term play.
+
+### Essence Effects
+
+Essence provides a **global multiplier** to all idle production rates:
+
+```
+multiplier = 1 + (0.02 × sqrt(essence))
+```
+
+**Example Multipliers:**
+- 0 essence → 1.0× (no bonus)
+- 25 essence → 1.1× (+10% production)
+- 100 essence → 1.2× (+20% production)
+- 400 essence → 1.4× (+40% production)
+
+This multiplier applies **after** all upgrade bonuses, making each prestige increasingly impactful.
+
+### What Resets on Prestige
+
+When you prestige, the following are **reset**:
+- Gold → 0
+- All upgrades → level 0
+- All items cleared
+- Player stats → baseline
+
+### What Is Preserved
+
+The following are **kept** through prestige:
+- **Essence** (increases with each prestige)
+- **Lifetime Gold** (tracking only, never decreases)
+- **Total Prestiges** count
+- **Essence Spent** (for future meta-upgrades)
+
+### Prestige Strategy
+
+The optimal prestige timing depends on your progression rate:
+- **Early game**: Prestige as soon as you reach 2M lifetime gold (1 essence)
+- **Mid game**: Wait until doubling your essence would provide significant gains
+- **Late game**: Balance prestige frequency with soft cap diminishing returns
+
+Use the **Projected Gain** display in the Prestige Panel to preview your essence reward before confirming.
 
 ## 💾 Save/Load Strategy
 
-### Save Schema v2
+### Save Schema v3
 
 - **File**: `user://savegame.json` with atomic write via `.tmp` and rolling `.bak` backup
 - **Format**: Pretty-printed JSON (indented) for easier diffing
 - **Schema**: Versioned with migration support
 
-#### Schema Fields (v2)
+#### Schema Fields (v3)
 ```json
 {
-  "version": 2,
+  "version": 3,
   "timestamp": 1699999999,
   "last_saved_time": 1699999999,
   "resources": {
@@ -171,9 +243,21 @@ Formula: `essence_gain = floor((total / 1,000,000) ^ 0.6)`
   },
   "items": [],
   "player_stats": {...},
-  "essence": 0.0
+  "essence": 10.0,
+  "lifetime_gold": 5000000.0,
+  "total_prestiges": 3,
+  "essence_spent": 0.0,
+  "prestige_settings": {"formula_version": 1}
 }
 ```
+
+#### Save Schema v3 Changes
+
+New fields added in version 3 for prestige system:
+- **lifetime_gold**: Cumulative gold earned across all time (never decreases)
+- **total_prestiges**: Number of times player has prestiged
+- **essence_spent**: Essence used on meta-upgrades (reserved for future use)
+- **prestige_settings**: Versioned prestige formula settings
 
 ### Atomic Write Process
 1. Write to `savegame.json.tmp`
@@ -222,14 +306,13 @@ If away for 12 hours, gain is capped at 8 hours:
 - ✅ **PR2**: Implement Resource & Upgrade models + Economy tick
 - ✅ **PR3**: SaveSystem + offline progression + autosave + debug controls
 - ✅ **PR4**: Structured Game UI + Upgrade Purchase Enhancements + Tooltips + Number Formatting
+- ✅ **PR5**: Prestige Mechanic + Essence Currency + Reset Flow + UI Integration
 
 ### Planned
-- ⬜ **PR5**: Cost scaling + multiple upgrade types
 - ⬜ **PR6**: Items & InventorySystem
 - ⬜ **PR7**: CombatSystem with wave simulation
 - ⬜ **PR8**: Enemy drop tables, item rewards
-- ⬜ **PR9**: Prestige system + essence currency
-- ⬜ **PR10+**: Balancing, analytics, polish
+- ⬜ **PR9**: Balancing, analytics, polish
 
 ## 🚀 Getting Started
 
@@ -261,6 +344,21 @@ upgrades["upgrade_id"] = new_upgrade
 |---------|---------|
 | 1       | Initial schema with resources, upgrades, items, player stats, essence |
 | 2       | Added `last_saved_time` for offline progression, ensured all known resources present, atomic write with backup |
+| 3       | Added prestige fields: `lifetime_gold`, `total_prestiges`, `essence_spent`, `prestige_settings` |
+
+## ⚖️ Tuning Constants
+
+The following constants control prestige balance and can be adjusted in `scripts/config/BalanceConstants.gd`:
+
+| Constant | Default Value | Description |
+|----------|---------------|-------------|
+| `GOLD_DENOMINATOR` | 1,000,000 | Scaling factor for essence gain formula |
+| `ESSENCE_EXPONENT` | 0.6 | Diminishing returns exponent |
+| `SOFT_CAP_BASE` | 1,000,000,000 | Lifetime gold threshold for soft cap |
+| `SOFT_CAP_EXPONENT` | 0.15 | Soft cap reduction factor |
+| `ESSENCE_BASE_MULTIPLIER` | 0.02 | Base multiplier per sqrt(essence) |
+| `PRESTIGE_REQUIRED_LIFETIME_GOLD` | 2,000,000 | Minimum lifetime gold to prestige |
+| `PRESTIGE_CURRENT_GOLD_REQUIREMENT` | 500,000 | Alternative current gold requirement |
 
 ## 🛡️ Security & Integrity
 

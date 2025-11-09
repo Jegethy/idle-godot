@@ -46,3 +46,11 @@ static func format_full(value: float, decimals: int = 2) -> String:
 	else:
 		var format_str := "%%.%df" % decimals
 		return format_str % value
+
+## Format a number with scientific notation above a threshold
+static func format_scientific_above(value: float, threshold: float = 1e12, precision: int = 2) -> String:
+	if absf(value) >= threshold:
+		var format_str := "%%.%de" % precision
+		return format_str % value
+	else:
+		return format_short(value, precision)
