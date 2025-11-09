@@ -93,7 +93,7 @@ func simulate_tick() -> bool:
 	
 	# Process player attacks
 	player_attack_timer += delta
-	var player_attack_interval := 1.0 / player_stats.combat_speed
+	var player_attack_interval: float = 1.0 / player_stats.combat_speed
 	
 	while player_attack_timer >= player_attack_interval and current_enemies.size() > 0:
 		player_attack_timer -= player_attack_interval
@@ -104,8 +104,8 @@ func simulate_tick() -> bool:
 		var enemy := current_enemies[i]
 		enemy_attack_timers[i] += delta
 		
-		var enemy_speed := enemy.get("combat_speed", 1.0)
-		var enemy_attack_interval := 1.0 / enemy_speed
+		var enemy_speed: float = enemy.get("combat_speed", 1.0)
+		var enemy_attack_interval: float = 1.0 / enemy_speed
 		
 		while enemy_attack_timers[i] >= enemy_attack_interval:
 			enemy_attack_timers[i] -= enemy_attack_interval
@@ -143,7 +143,8 @@ func fast_simulate_wave(wave_index: int, seed: int = -1) -> Dictionary:
 func _generate_wave_enemies(wave_index: int) -> Array[Dictionary]:
 	var enemies: Array[Dictionary] = []
 	
-	var composition := EnemyDatabase.get_wave_composition()
+	var enemy_database := get_node("/root/EnemyDatabase")
+	var composition := enemy_database.get_wave_composition()
 	var base_count: int = composition.get("base_enemy_count", 3)
 	var count_growth: float = composition.get("enemy_count_growth_per_wave", 0.2)
 	var elite_every_n: int = composition.get("elite_every_n", 5)
@@ -156,27 +157,27 @@ func _generate_wave_enemies(wave_index: int) -> Array[Dictionary]:
 	# Check if this is a boss wave
 	if wave_index > 0 and wave_index % boss_every_m == 0:
 		# Boss wave: single boss enemy
-		var boss := EnemyDatabase.get_scaled_enemy("boss_core", wave_index)
+		var boss := enemy_database.get_scaled_enemy("boss_core", wave_index)
 		if not boss.is_empty():
-			boss = EnemyDatabase.apply_boss_multipliers(boss)
+			boss = enemy_database.apply_boss_multipliers(boss)
 			boss["combat_speed"] = 1.0
 			enemies.append(boss)
 		return enemies
 	
 	# Regular wave with possible elite
-	var rotation := EnemyDatabase.get_enemy_rotation()
+	var rotation := enemy_database.get_enemy_rotation()
 	var is_elite_wave := wave_index > 0 and wave_index % elite_every_n == 0
 	
 	for i in range(enemy_count):
 		var enemy_id: String = rotation[i % rotation.size()]
-		var enemy := EnemyDatabase.get_scaled_enemy(enemy_id, wave_index)
+		var enemy := enemy_database.get_scaled_enemy(enemy_id, wave_index)
 		
 		if enemy.is_empty():
 			continue
 		
 		# Make last enemy elite if this is an elite wave
 		if is_elite_wave and i == enemy_count - 1:
-			enemy = EnemyDatabase.apply_elite_multipliers(enemy)
+			enemy = enemy_database.apply_elite_multipliers(enemy)
 		
 		enemy["combat_speed"] = 1.0
 		enemies.append(enemy)
@@ -216,10 +217,10 @@ func _player_attack(player_stats: Dictionary) -> void:
 		return
 	
 	var enemy := current_enemies[0]
-	var base_damage := max(1.0, player_stats.attack - enemy.get("defense", 0.0))
+	var base_damage: float = max(1.0, player_stats.attack - enemy.get("defense", 0.0))
 	var rng_service := get_node("/root/RNGService") as RNGServiceClass
-	var is_crit := rng_service.chance(player_stats.crit_chance)
-	var damage := base_damage
+	var is_crit: bool = rng_service.chance(player_stats.crit_chance)
+	var damage: float = base_damage
 	
 	if is_crit:
 		damage *= player_stats.crit_multiplier
@@ -246,8 +247,8 @@ func _player_attack(player_stats: Dictionary) -> void:
 
 ## Enemy attacks the player
 func _enemy_attack(enemy: Dictionary, player_stats: Dictionary) -> void:
-	var base_damage := max(1.0, enemy.get("attack", 0.0) - player_stats.defense)
-	var damage := base_damage
+	var base_damage: float = max(1.0, enemy.get("attack", 0.0) - player_stats.defense)
+	var damage: float = base_damage
 	
 	# Apply damage
 	player_hp -= damage

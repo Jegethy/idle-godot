@@ -86,7 +86,7 @@ func get_affix_pool(category: String) -> Array[Dictionary]:
 	return []
 
 ## Compute effect value with rarity and wave scaling
-func compute_effect_value(effect_def: Dictionary, rarity: String, wave_index: int) -> float:
+func compute_effect_value(effect_def: Dictionary, _rarity: String, wave_index: int) -> float:
 	var base: float = effect_def.get("base", 0.0)
 	var per_wave_factor: float = effect_def.get("per_wave_factor", 0.0)
 	
@@ -104,7 +104,7 @@ func compute_effect_value(effect_def: Dictionary, rarity: String, wave_index: in
 
 ## Roll affixes for an item
 ## Returns: Array of affix data [{id, category, rolled_effects}]
-func roll_affixes(base_item_def: Dictionary, rarity: String, wave_index: int, rng_service: RNGServiceClass) -> Array[Dictionary]:
+func roll_affixes(_base_item_def: Dictionary, rarity: String, wave_index: int, rng_service: RNGServiceClass) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	
 	# Get max affixes for this rarity

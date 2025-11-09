@@ -318,11 +318,11 @@ func reroll_item(instance_id: String) -> bool:
 	
 	# Check if item is currently equipped
 	var was_equipped := false
-	var equipped_slot := ""
+	var _equipped_slot := ""
 	for slot in GameState.equipped_slots:
 		if GameState.equipped_slots[slot] == instance_id:
 			was_equipped = true
-			equipped_slot = slot
+			_equipped_slot = slot
 			break
 	
 	# Generate new affixes using current wave index

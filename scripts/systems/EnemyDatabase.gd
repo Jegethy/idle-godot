@@ -3,8 +3,6 @@ extends Node
 ## 
 ## Loads enemy data from JSON and provides scaled enemies based on wave index.
 
-class_name EnemyDatabase
-
 var enemies: Dictionary = {}  # {id: Dictionary} - base enemy definitions
 var wave_config: Dictionary = {}
 
