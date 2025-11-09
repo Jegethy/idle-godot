@@ -1301,6 +1301,265 @@ Events are stored in:
 - **Rotation**: Daily by default (files named `events-YYYYMMDD.ndjson`)
 - **Atomic Writes**: Temp file + rename for crash safety
 
+## 📤 Cloud Analytics Upload (PR11)
+
+The Cloud Analytics Upload feature extends the Analytics & Telemetry Layer with secure, opt-in cloud upload capabilities.
+
+### Overview
+
+Cloud upload allows batching and sending analytics events to a remote endpoint with:
+- **Opt-in Chain**: Analytics must be enabled first, then cloud upload can be enabled
+- **HMAC-SHA256 Signing**: Every batch is cryptographically signed for integrity verification
+- **Exponential Backoff**: Automatic retry with jitter on failures
+- **Cursor Tracking**: Idempotent uploads ensure events are not duplicated
+- **Disk Cap Management**: Automatic cleanup of old files when disk limit is reached
+- **Privacy First**: Reuses anonymizer before upload; no PII transmitted
+
+### Configuration
+
+Cloud upload settings are stored in `data/analytics_settings.json`:
+
+```json
+{
+  "cloud_upload_enabled": false,
+  "endpoint_url": "",
+  "api_key": "",
+  "api_secret": "",
+  "upload_interval_sec": 60,
+  "max_batch_events": 5000,
+  "max_batch_bytes": 1048576,
+  "disk_cap_bytes": 52428800,
+  "backoff_base_sec": 1.0,
+  "backoff_factor": 2.0,
+  "backoff_max_sec": 300.0,
+  "backoff_jitter_ratio": 0.2
+}
+```
+
+**Security Note**: The `api_secret` can also be provided via the `ANALYTICS_API_SECRET` environment variable for production deployments.
+
+### Envelope Format
+
+Each upload batch contains a signed envelope:
+
+```json
+{
+  "project_id": "idle-incremental-godot",
+  "session_id": "550e8400-e29b-41d4-a716-446655440000",
+  "sent_at": 1704067200,
+  "ver": 1,
+  "events": [
+    {
+      "ts": 1704067180,
+      "session_id": "550e8400-e29b-41d4-a716-446655440000",
+      "event": "upgrade.purchased",
+      "seq": 42,
+      "ver": 1,
+      "data": {"id": "gold_boost", "level": 5, "cost": 125.5},
+      "meta": {"wave": 3, "gold": 500.0, "fps": 60}
+    }
+  ],
+  "signature": "base64-encoded-hmac-sha256"
+}
+```
+
+### HMAC Signing
+
+The envelope is signed using HMAC-SHA256:
+
+1. **Canonical JSON**: Envelope keys sorted alphabetically (excluding `signature`)
+2. **HMAC Computation**: `HMAC-SHA256(api_secret, canonical_json)`
+3. **Base64 Encoding**: Binary HMAC encoded as base64 string
+
+**Server-side verification** should:
+- Remove the `signature` field from received envelope
+- Compute HMAC using the same canonical JSON approach
+- Compare computed signature with received signature (constant-time comparison)
+
+### Backoff Policy
+
+On upload failures (HTTP 429 or 5xx), exponential backoff is applied:
+
+```
+next_delay = min(base_sec * factor^attempt, max_sec) * (1 ± jitter_ratio * random)
+```
+
+**Example**: With base=1s, factor=2.0, max=300s, jitter=0.2:
+- Attempt 1: ~1s (±20%)
+- Attempt 2: ~2s (±20%)
+- Attempt 3: ~4s (±20%)
+- Attempt 4: ~8s (±20%)
+- ...caps at 300s
+
+### Cursor & Idempotency
+
+Upload progress is tracked via a cursor file (`user://telemetry/upload.cursor`):
+
+```json
+{
+  "file_path": "user://telemetry/events-20250109.ndjson",
+  "line_index": 1250
+}
+```
+
+- After successful upload, cursor advances to next batch start
+- On restart, uploader resumes from cursor position
+- Events are never re-uploaded after acknowledgment
+
+### Disk Cap Enforcement
+
+When telemetry directory exceeds `disk_cap_bytes`:
+
+1. Remove oldest `.done` files (fully uploaded) first
+2. If still over cap, remove oldest active files (with warning)
+
+Files marked `.done` are retained for local export until disk cap cleanup.
+
+### Usage
+
+#### Via UI Panel
+
+The `AnalyticsPanel` includes cloud upload controls:
+
+- **Cloud Upload Checkbox**: Enable/disable cloud upload
+- **Endpoint URL**: HTTP/HTTPS endpoint for batch uploads
+- **API Key**: Authentication key (sent in `X-API-Key` header)
+- **API Secret**: HMAC signing secret (masked in UI)
+- **Test Connection**: Send empty batch to verify connectivity
+- **Upload Now**: Trigger immediate upload (ignores interval)
+- **Pause/Resume**: Temporarily halt uploads without disabling
+- **Clear Backlog**: Delete cursor and optionally mark current file as orphan
+
+**Status Line** displays:
+```
+Uploader: Enabled | Last: OK @ 14:32:15 | Queue: 127 events | Backoff: 0s
+```
+
+#### Programmatic Control
+
+```gdscript
+# Access uploader through AnalyticsService
+var uploader = AnalyticsService.uploader
+
+# Check status
+var status = uploader.get_status()
+print("Uploader enabled: %s" % status["enabled"])
+print("Last upload: %s at %s" % [status["last_upload"], status["last_time"]])
+print("Queued events: %d" % status["queued_events"])
+
+# Trigger immediate upload
+uploader.upload_now()
+
+# Pause/resume
+uploader.pause()
+uploader.resume()
+
+# Test connection
+var success = uploader.test_connection()
+
+# Clear backlog (careful!)
+uploader.clear_backlog(true)  # true = mark current file as .orphan
+```
+
+### Components
+
+#### HttpTransport
+
+- **Class**: `HttpTransport` (RefCounted)
+- **Location**: `scripts/systems/transports/HttpTransport.gd`
+- **Purpose**: HTTP client with HMAC signing
+- **Methods**:
+  - `send_batch(envelope: Dictionary) -> bool`
+  - `_sign_envelope(envelope: Dictionary) -> Dictionary`
+  - `_hmac_sha256(key: String, message: String) -> String`
+
+#### AnalyticsUploader
+
+- **Class**: `AnalyticsUploader` (Node)
+- **Location**: `scripts/systems/AnalyticsUploader.gd`
+- **Purpose**: Timer-based batch uploader with backoff
+- **Signals**:
+  - `upload_success(events_sent: int)`
+  - `upload_failure(error_message: String)`
+  - `backoff_changed(remaining_sec: float)`
+
+#### EventStore Enhancements
+
+New methods for cursor-based batch reading:
+
+```gdscript
+# Read batch from cursor
+var batch = event_store.read_batch(cursor, max_events, max_bytes)
+# Returns: {events: Array, next_cursor: Dictionary, has_more: bool}
+
+# Save/load cursor
+event_store.save_cursor(cursor)
+var cursor = event_store.load_cursor()
+
+# Mark file as fully uploaded
+event_store.mark_file_done(file_path)  # Renames to .done
+
+# Enforce disk cap
+event_store.enforce_disk_cap(cap_bytes)
+```
+
+### Testing
+
+New comprehensive test suite:
+
+- **test_http_signature.gd**: HMAC-SHA256 determinism and integrity
+- **test_upload_batching.gd**: Batch size limits (events and bytes)
+- **test_signal_emit_paths.gd**: Verify signals emitted by correct services
+- **test_sync_levels_invocation.gd**: MetaUpgradeService method invocation
+- **test_diagnostics_autoloads.gd**: Startup diagnostics validation
+
+### Signal Cleanup (PR11)
+
+As part of PR11, all UNUSED_SIGNAL warnings were eliminated:
+
+**Before**: Signals declared in `GameState` but emitted elsewhere
+
+**After**: Signals moved to services that actually emit them:
+- `upgrade_purchased` → `UpgradeService`
+- `prestige_performed`, `essence_changed` → `PrestigeService`
+- `rates_updated` → `Economy`
+- `modifiers_recomputed`, `item_acquired` → `InventorySystem`
+- `meta_upgrade_leveled`, `meta_upgrades_respecced`, `meta_effects_updated`, `essence_changed` → `MetaUpgradeService`
+
+All UI and wiring connections updated to connect to correct signal sources.
+
+### Diagnostics Tool
+
+New `Diagnostics.gd` tool verifies at startup:
+- All expected autoload singletons exist
+- No duplicate `class_name` conflicts
+- Critical methods are available (e.g., `MetaUpgradeService.sync_levels_from_game_state()`)
+
+On success:
+```
+✓ Diagnostics OK - All systems healthy
+```
+
+On failure:
+```
+✗ Diagnostics FAILED:
+  - Missing autoloads: SomeService
+  - MetaUpgradeService.sync_levels_from_game_state() method unavailable
+```
+
+### Non-Goals
+
+Cloud upload intentionally **does not** include:
+
+- ❌ Encryption at rest
+- ❌ TLS certificate pinning
+- ❌ OAuth or advanced authentication flows
+- ❌ Multi-region replication
+- ❌ Real-time streaming (uses batched uploads)
+- ❌ Automatic schema versioning server
+
+For production use, implement these on the server side as needed.
+
 ## 📝 License
 
 This project is open source and available for educational purposes.
@@ -1315,4 +1574,4 @@ This is a learning project following incremental development practices:
 
 ---
 
-**Current Status**: PR10 - Analytics & Telemetry Layer implemented with privacy-first design.
+**Current Status**: PR11 - Cloud Analytics Upload with HMAC signing, signal cleanup, MetaUpgradeService fixes, and startup diagnostics implemented.
