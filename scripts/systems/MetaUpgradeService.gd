@@ -13,10 +13,10 @@ signal meta_effects_updated()
 signal essence_changed(total_essence: float)  # Emitted when essence changes due to meta upgrades
 
 # Upgrade definitions loaded from JSON
-var definitions: Dictionary = {}  # {id: MetaUpgrade}
+var definitions: Dictionary[StringName, MetaUpgrade] = {}  # {id: MetaUpgrade}
 
 # Aggregated effects cache: {effect_type: total_value}
-var effect_aggregate: Dictionary = {}
+var effect_aggregate: Dictionary[StringName, float] = {}
 
 func _ready() -> void:
 	_load_definitions()
@@ -148,14 +148,14 @@ func prerequisites_satisfied(upgrade_id: String) -> bool:
 		if parts.size() != 2:
 			continue
 		
-		var prereq_id := parts[0]
-		var required_level := int(parts[1])
+		var prereq_id: StringName = StringName(parts[0])
+		var required_level: int = int(parts[1])
 		
 		# Check if prerequisite upgrade exists and has required level
 		if not definitions.has(prereq_id):
 			return false
 		
-		var current_level := GameState.meta_upgrades.get(prereq_id, 0)
+		var current_level: int = int(GameState.meta_upgrades.get(prereq_id, 0))
 		if current_level < required_level:
 			return false
 	
@@ -166,13 +166,13 @@ func recompute_meta_effects() -> void:
 	effect_aggregate.clear()
 	
 	# Sum up effects from all upgrades
-	for upgrade_id in definitions:
+	for upgrade_id: StringName in definitions.keys():
 		var upgrade: MetaUpgrade = definitions[upgrade_id]
-		var level := GameState.meta_upgrades.get(upgrade_id, 0)
+		var level: int = int(GameState.meta_upgrades.get(upgrade_id, 0))
 		
 		if level > 0:
-			var effect := upgrade.cumulative_effect(level)
-			var effect_type := upgrade.effect_type
+			var effect: float = float(upgrade.cumulative_effect(level))
+			var effect_type: StringName = StringName(upgrade.effect_type)
 			
 			if not effect_aggregate.has(effect_type):
 				effect_aggregate[effect_type] = 0.0
@@ -244,9 +244,9 @@ func compute_total_spent(upgrade_id: String) -> float:
 		return 0.0
 	
 	var upgrade: MetaUpgrade = definitions[upgrade_id]
-	var level := GameState.meta_upgrades.get(upgrade_id, 0)
+	var level: int = int(GameState.meta_upgrades.get(upgrade_id, 0))
 	
-	var total := 0.0
+	var total: float = 0.0
 	for i in range(level):
 		total += upgrade.cost(i)
 	
@@ -311,8 +311,8 @@ func compute_roi(upgrade_id: String, current_idle_rate: float = 1.0) -> float:
 
 ## Sync upgrade levels from GameState to definitions
 func sync_levels_from_game_state() -> void:
-	for upgrade_id in definitions:
-		var level := GameState.meta_upgrades.get(upgrade_id, 0)
+	for upgrade_id: StringName in definitions.keys():
+		var level: int = int(GameState.meta_upgrades.get(upgrade_id, 0))
 		definitions[upgrade_id].current_level = level
 	
 	# Recompute effects after sync

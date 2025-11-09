@@ -55,7 +55,7 @@ func _calculate_essence_gain(lifetime_gold: float) -> int:
 		raw_essence *= post_cap_factor
 	
 	# Apply meta upgrade essence gain multiplier
-	raw_essence *= (1.0 + GameState.meta_effects_cache.get("essence_gain_multiplier", 0.0))
+	raw_essence *= (1.0 + float(GameState.meta_effects_cache.get(&"essence_gain_multiplier", 0.0)))
 	
 	# Floor and clamp to non-negative
 	var final_essence: int = int(floor(raw_essence))
