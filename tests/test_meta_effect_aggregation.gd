@@ -44,7 +44,7 @@ func test_single_upgrade_effect() -> bool:
 	MetaUpgradeService.sync_levels_from_game_state()
 	
 	# Check effect cache
-	var idle_mult := GameState.meta_effects_cache.get("idle_rate_multiplier", 0.0)
+	var idle_mult: float = float(GameState.meta_effects_cache.get(&"idle_rate_multiplier", 0.0))
 	if not is_equal_approx(idle_mult, 0.2):
 		print("  ✗ Expected idle_rate_multiplier = 0.2, got %.3f" % idle_mult)
 		return false
@@ -66,7 +66,7 @@ func test_multiple_effects_stack() -> bool:
 	GameState.meta_upgrades["combat_edge"] = 5
 	MetaUpgradeService.sync_levels_from_game_state()
 	
-	var attack_mult := GameState.meta_effects_cache.get("combat_attack_mult", 0.0)
+	var attack_mult: float = float(GameState.meta_effects_cache.get(&"combat_attack_mult", 0.0))
 	if not is_equal_approx(attack_mult, 0.075):
 		print("  ✗ Expected combat_attack_mult = 0.075, got %.3f" % attack_mult)
 		return false
@@ -90,7 +90,7 @@ func test_cache_updates_on_level() -> bool:
 	MetaUpgradeService.sync_levels_from_game_state()
 	
 	# Verify cache is empty
-	var initial_mult := GameState.meta_effects_cache.get("idle_rate_multiplier", 0.0)
+	var initial_mult: float = float(GameState.meta_effects_cache.get(&"idle_rate_multiplier", 0.0))
 	if not is_equal_approx(initial_mult, 0.0):
 		print("  ✗ Expected initial idle_rate_multiplier = 0.0, got %.3f" % initial_mult)
 		return false
@@ -102,7 +102,7 @@ func test_cache_updates_on_level() -> bool:
 		return false
 	
 	# Verify cache updated
-	var updated_mult := GameState.meta_effects_cache.get("idle_rate_multiplier", 0.0)
+	var updated_mult: float = float(GameState.meta_effects_cache.get(&"idle_rate_multiplier", 0.0))
 	if not is_equal_approx(updated_mult, 0.02):
 		print("  ✗ Expected updated idle_rate_multiplier = 0.02, got %.3f" % updated_mult)
 		return false
@@ -126,9 +126,9 @@ func test_different_effect_types() -> bool:
 	MetaUpgradeService.sync_levels_from_game_state()
 	
 	# Check each effect type independently
-	var idle_mult := GameState.meta_effects_cache.get("idle_rate_multiplier", 0.0)
-	var idle_add := GameState.meta_effects_cache.get("idle_rate_add", 0.0)
-	var combat_mult := GameState.meta_effects_cache.get("combat_attack_mult", 0.0)
+	var idle_mult: float = float(GameState.meta_effects_cache.get(&"idle_rate_multiplier", 0.0))
+	var idle_add: float = float(GameState.meta_effects_cache.get(&"idle_rate_add", 0.0))
+	var combat_mult: float = float(GameState.meta_effects_cache.get(&"combat_attack_mult", 0.0))
 	
 	if not is_equal_approx(idle_mult, 0.2):
 		print("  ✗ Expected idle_rate_multiplier = 0.2, got %.3f" % idle_mult)

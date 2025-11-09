@@ -80,7 +80,7 @@ func test_can_level_after_prereq_met() -> bool:
 		return false
 	
 	# Verify level increased
-	var level := GameState.meta_upgrades.get("combat_edge", 0)
+	var level: int = int(GameState.meta_upgrades.get(&"combat_edge", 0))
 	if level != 1:
 		print("  ✗ Expected combat_edge level 1, got %d" % level)
 		return false
