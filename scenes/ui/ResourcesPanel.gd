@@ -10,7 +10,7 @@ var resource_labels: Dictionary = {}  # {resource_id: {amount_label: Label, rate
 func _ready() -> void:
 	# Connect to signals
 	GameState.resource_changed.connect(_on_resource_changed)
-	GameState.rates_updated.connect(_on_rates_updated)
+	Economy.rates_updated.connect(_on_rates_updated)
 	
 	# Setup initial UI
 	_setup_resources_ui()

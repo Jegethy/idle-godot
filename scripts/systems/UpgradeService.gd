@@ -3,7 +3,8 @@ extends Node
 ## 
 ## Handles single and bulk upgrade purchases, cost calculations, and rate projections.
 
-# Signal emitted when bulk purchase completes
+# Signals
+signal upgrade_purchased(upgrade_id: String, new_level: int)
 signal bulk_purchase_completed(upgrade_id: StringName, levels_purchased: int)
 
 func _ready() -> void:
@@ -35,10 +36,10 @@ func buy_upgrade(upgrade_id: StringName, quantity: int = 1) -> bool:
 	
 	# Emit purchase signal
 	if quantity == 1:
-		GameState.upgrade_purchased.emit(upgrade_id, upgrade.level)
+		upgrade_purchased.emit(upgrade_id, upgrade.level)
 	else:
 		bulk_purchase_completed.emit(upgrade_id, quantity)
-		GameState.upgrade_purchased.emit(upgrade_id, upgrade.level)
+		upgrade_purchased.emit(upgrade_id, upgrade.level)
 	
 	# Recalculate rates after purchase
 	Economy.recalculate_all_rates()

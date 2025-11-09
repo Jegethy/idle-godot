@@ -10,6 +10,7 @@ class_name MetaUpgradeService
 signal meta_upgrade_leveled(id: StringName, new_level: int)
 signal meta_upgrades_respecced(refunded_essence: float)
 signal meta_effects_updated()
+signal essence_changed(total_essence: float)  # Emitted when essence changes due to meta upgrades
 signal roi_dashboard_updated()
 
 # Upgrade definitions loaded from JSON
@@ -125,7 +126,7 @@ func level_up(upgrade_id: String) -> bool:
 	
 	# Emit signals
 	meta_upgrade_leveled.emit(upgrade_id, upgrade.current_level)
-	GameState.essence_changed.emit(GameState.essence)
+	essence_changed.emit(GameState.essence)
 	
 	print("Leveled up %s to level %d (cost: %.1f essence)" % [upgrade.name, upgrade.current_level, cost])
 	
@@ -219,7 +220,7 @@ func respec_all() -> Dictionary:
 	
 	# Emit signals
 	meta_upgrades_respecced.emit(refund)
-	GameState.essence_changed.emit(GameState.essence)
+	essence_changed.emit(GameState.essence)
 	
 	print("Respecced all meta upgrades: refunded %.1f essence (%.0f%% of %.1f spent)" % [refund, BalanceConstants.META_REFUND_RATE * 100, total_spent])
 	

@@ -4,6 +4,9 @@ extends Node
 ## Handles tick-based resource generation, upgrade application,
 ## cost scaling, and prestige formulas.
 
+# Signals
+signal rates_updated()
+
 const EXP_GROWTH := 1.15
 
 # Cached per-second rates for UI queries
@@ -80,7 +83,7 @@ func recalculate_all_rates() -> void:
 	per_second_rates.clear()
 	for resource_id in GameState.resources:
 		per_second_rates[resource_id] = compute_resource_rate(resource_id)
-	GameState.rates_updated.emit()
+	rates_updated.emit()
 
 func apply_tick(delta: float) -> void:
 	# Recalculate rates every tick
@@ -107,7 +110,7 @@ func purchase_upgrade(upgrade_id: String) -> bool:
 	# TODO: Support multi-resource costs
 	if GameState.spend_resource("gold", cost):
 		upgrade.level += 1
-		GameState.upgrade_purchased.emit(upgrade_id, upgrade.level)
+		# Note: upgrade_purchased signal moved to UpgradeService
 		# Recalculate rates immediately after purchase
 		recalculate_all_rates()
 		return true
@@ -129,9 +132,9 @@ func can_prestige() -> bool:
 	return false
 
 func perform_prestige() -> void:
-	# TODO: Implement full prestige logic
+	# TODO: Implement full prestige logic (deprecated - use PrestigeService)
 	if can_prestige():
 		var essence_gain: float = calculate_prestige_essence(GameState.resources["gold"].amount)
 		GameState.essence += essence_gain
 		GameState.reset_for_prestige()
-		GameState.prestige_performed.emit(GameState.essence)
+		# Note: prestige_performed signal moved to PrestigeService

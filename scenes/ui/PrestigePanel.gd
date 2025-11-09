@@ -21,7 +21,7 @@ func _ready() -> void:
 	
 	# Connect to game state signals
 	GameState.resource_changed.connect(_on_resource_changed)
-	GameState.essence_changed.connect(_on_essence_changed)
+	PrestigeService.essence_changed.connect(_on_essence_changed)
 	PrestigeService.prestige_performed.connect(_on_prestige_performed)
 	
 	# Initial update
