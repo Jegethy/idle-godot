@@ -29,7 +29,7 @@ var essence_spent: float = 0.0  # For future meta-upgrades
 var meta_upgrades: Dictionary[StringName, int] = {}  # {id: level}
 var meta_effects_cache: Dictionary[StringName, float] = {}  # {effect_type: total_value}
 var respec_tokens: int = 0
-var last_respec_time: int = 0
+var last_respec_time: float = 0.0
 
 # Combat state
 var current_wave: int = 0
