@@ -36,15 +36,20 @@ func test_same_seed_same_affixes() -> bool:
 	var rarity := "rare"
 	var wave_index := 10
 	
+	# Create service instances for testing
+	var affix_service := AffixServiceClass.new()
+	affix_service._load_affix_definitions()
+	affix_service._load_loot_weights()
+	
 	# Roll affixes with seed 12345
-	var rng1 := RNGService.new()
+	var rng1 := RNGServiceClass.new()
 	rng1.set_seed(12345)
-	var affixes1 := AffixService.roll_affixes(base_item, rarity, wave_index, rng1)
+	var affixes1 := affix_service.roll_affixes(base_item, rarity, wave_index, rng1)
 	
 	# Roll again with same seed
-	var rng2 := RNGService.new()
+	var rng2 := RNGServiceClass.new()
 	rng2.set_seed(12345)
-	var affixes2 := AffixService.roll_affixes(base_item, rarity, wave_index, rng2)
+	var affixes2 := affix_service.roll_affixes(base_item, rarity, wave_index, rng2)
 	
 	# Compare results
 	if affixes1.size() != affixes2.size():
@@ -99,15 +104,20 @@ func test_different_seeds_different_affixes() -> bool:
 	var rarity := "epic"
 	var wave_index := 15
 	
+	# Create service instances for testing
+	var affix_service := AffixServiceClass.new()
+	affix_service._load_affix_definitions()
+	affix_service._load_loot_weights()
+	
 	# Roll with seed 11111
-	var rng1 := RNGService.new()
+	var rng1 := RNGServiceClass.new()
 	rng1.set_seed(11111)
-	var affixes1 := AffixService.roll_affixes(base_item, rarity, wave_index, rng1)
+	var affixes1 := affix_service.roll_affixes(base_item, rarity, wave_index, rng1)
 	
 	# Roll with seed 99999
-	var rng2 := RNGService.new()
+	var rng2 := RNGServiceClass.new()
 	rng2.set_seed(99999)
-	var affixes2 := AffixService.roll_affixes(base_item, rarity, wave_index, rng2)
+	var affixes2 := affix_service.roll_affixes(base_item, rarity, wave_index, rng2)
 	
 	# They should be different (with high probability)
 	var are_identical := true
@@ -144,15 +154,20 @@ func test_affix_values_deterministic() -> bool:
 	var wave_index := 25
 	var seed := 54321
 	
+	# Create service instances for testing
+	var affix_service := AffixServiceClass.new()
+	affix_service._load_affix_definitions()
+	affix_service._load_loot_weights()
+	
 	# Generate first item
-	var rng1 := RNGService.new()
+	var rng1 := RNGServiceClass.new()
 	rng1.set_seed(seed)
-	var item1 := AffixService.generate_item_instance(item_def, rarity, wave_index, rng1)
+	var item1 := affix_service.generate_item_instance(item_def, rarity, wave_index, rng1)
 	
 	# Generate second item with same parameters
-	var rng2 := RNGService.new()
+	var rng2 := RNGServiceClass.new()
 	rng2.set_seed(seed)
-	var item2 := AffixService.generate_item_instance(item_def, rarity, wave_index, rng2)
+	var item2 := affix_service.generate_item_instance(item_def, rarity, wave_index, rng2)
 	
 	# Compare affixes
 	if item1.affixes.size() != item2.affixes.size():

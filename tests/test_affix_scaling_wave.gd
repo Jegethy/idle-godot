@@ -35,18 +35,23 @@ func test_higher_wave_stronger_affixes() -> bool:
 	}
 	var rarity := "rare"
 	
+	# Create service instances for testing
+	var affix_service := AffixServiceClass.new()
+	affix_service._load_affix_definitions()
+	affix_service._load_loot_weights()
+	
 	# Use fixed seed for consistent affix selection
 	var seed := 42424
 	
 	# Roll at wave 0
-	var rng1 := RNGService.new()
+	var rng1 := RNGServiceClass.new()
 	rng1.set_seed(seed)
-	var affixes_wave0 := AffixService.roll_affixes(base_item, rarity, 0, rng1)
+	var affixes_wave0 := affix_service.roll_affixes(base_item, rarity, 0, rng1)
 	
 	# Roll at wave 20
-	var rng2 := RNGService.new()
+	var rng2 := RNGServiceClass.new()
 	rng2.set_seed(seed)
-	var affixes_wave20 := AffixService.roll_affixes(base_item, rarity, 20, rng2)
+	var affixes_wave20 := affix_service.roll_affixes(base_item, rarity, 20, rng2)
 	
 	# Should have same structure
 	if affixes_wave0.size() != affixes_wave20.size():
@@ -95,12 +100,17 @@ func test_wave_scaling_formula() -> bool:
 	var rarity := "uncommon"
 	var wave_index := 10
 	
+	# Create service instances for testing
+	var affix_service := AffixServiceClass.new()
+	affix_service._load_affix_definitions()
+	affix_service._load_loot_weights()
+	
 	# Use a specific seed to get a known affix
 	var seed := 77777
-	var rng := RNGService.new()
+	var rng := RNGServiceClass.new()
 	rng.set_seed(seed)
 	
-	var affixes := AffixService.roll_affixes(base_item, rarity, wave_index, rng)
+	var affixes := affix_service.roll_affixes(base_item, rarity, wave_index, rng)
 	
 	if affixes.size() == 0:
 		print("  ⚠ No affixes rolled, cannot verify formula")
@@ -137,13 +147,18 @@ func test_wave_scaling_cap() -> bool:
 	}
 	var rarity := "epic"
 	
+	# Create service instances for testing
+	var affix_service := AffixServiceClass.new()
+	affix_service._load_affix_definitions()
+	affix_service._load_loot_weights()
+	
 	# Use fixed seed
 	var seed := 88888
 	
 	# Roll at wave equal to cap
-	var rng1 := RNGService.new()
+	var rng1 := RNGServiceClass.new()
 	rng1.set_seed(seed)
-	var affixes_at_cap := AffixService.roll_affixes(
+	var affixes_at_cap := affix_service.roll_affixes(
 		base_item, 
 		rarity, 
 		BalanceConstants.AFFIX_WAVE_SCALING_CAP, 
@@ -151,9 +166,9 @@ func test_wave_scaling_cap() -> bool:
 	)
 	
 	# Roll at wave beyond cap
-	var rng2 := RNGService.new()
+	var rng2 := RNGServiceClass.new()
 	rng2.set_seed(seed)
-	var affixes_beyond_cap := AffixService.roll_affixes(
+	var affixes_beyond_cap := affix_service.roll_affixes(
 		base_item, 
 		rarity, 
 		BalanceConstants.AFFIX_WAVE_SCALING_CAP + 50, 

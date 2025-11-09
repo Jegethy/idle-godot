@@ -3,7 +3,7 @@ extends Node
 ## 
 ## Handles affix rolling, effect computation, and item instance generation.
 
-class_name AffixService
+class_name AffixServiceClass
 
 # Loaded data
 var affix_definitions: Dictionary = {}  # {id: Dictionary}
@@ -104,7 +104,7 @@ func compute_effect_value(effect_def: Dictionary, rarity: String, wave_index: in
 
 ## Roll affixes for an item
 ## Returns: Array of affix data [{id, category, rolled_effects}]
-func roll_affixes(base_item_def: Dictionary, rarity: String, wave_index: int, rng_service: RNGService) -> Array[Dictionary]:
+func roll_affixes(base_item_def: Dictionary, rarity: String, wave_index: int, rng_service: RNGServiceClass) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	
 	# Get max affixes for this rarity
@@ -160,7 +160,7 @@ func roll_affixes(base_item_def: Dictionary, rarity: String, wave_index: int, rn
 	
 	return result
 
-func _roll_single_affix(category: String, rarity: String, wave_index: int, rng_service: RNGService) -> Dictionary:
+func _roll_single_affix(category: String, rarity: String, wave_index: int, rng_service: RNGServiceClass) -> Dictionary:
 	var pool := get_affix_pool(category)
 	if pool.size() == 0:
 		return {}
@@ -206,7 +206,7 @@ func _roll_single_affix(category: String, rarity: String, wave_index: int, rng_s
 	}
 
 ## Generate a complete item instance with affixes
-func generate_item_instance(item_def: Dictionary, rarity: String, wave_index: int, rng_service: RNGService) -> ItemModel:
+func generate_item_instance(item_def: Dictionary, rarity: String, wave_index: int, rng_service: RNGServiceClass) -> ItemModel:
 	var item := ItemModel.new()
 	item.from_dict(item_def)
 	
@@ -228,7 +228,7 @@ func generate_item_instance(item_def: Dictionary, rarity: String, wave_index: in
 	return item
 
 ## Get rarity by weighted random
-func roll_rarity(rng_service: RNGService, rarity_factor: float = 1.0) -> String:
+func roll_rarity(rng_service: RNGServiceClass, rarity_factor: float = 1.0) -> String:
 	var rarity_weights_data: Dictionary = loot_weights.get("rarity_base_weights", {})
 	
 	# Build weights array with rarity factor adjustment

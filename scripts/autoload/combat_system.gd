@@ -47,7 +47,8 @@ func start_wave(wave_index: int, seed: int = -1) -> void:
 	current_seed = seed
 	
 	# Set RNG seed for deterministic simulation
-	RNGService.set_seed(seed)
+	var rng_service := get_node("/root/RNGService") as RNGServiceClass
+	rng_service.set_seed(seed)
 	
 	# Generate wave enemies
 	current_enemies = _generate_wave_enemies(wave_index)
@@ -216,7 +217,8 @@ func _player_attack(player_stats: Dictionary) -> void:
 	
 	var enemy := current_enemies[0]
 	var base_damage := max(1.0, player_stats.attack - enemy.get("defense", 0.0))
-	var is_crit := RNGService.chance(player_stats.crit_chance)
+	var rng_service := get_node("/root/RNGService") as RNGServiceClass
+	var is_crit := rng_service.chance(player_stats.crit_chance)
 	var damage := base_damage
 	
 	if is_crit:
@@ -288,10 +290,12 @@ func _enemy_defeated(enemy: Dictionary) -> void:
 func _end_combat_victory() -> void:
 	# Calculate rewards
 	# Compute rewards using DropService (pass wave index for affix scaling)
-	var rewards := DropService.compute_rewards(enemies_defeated, RNGService, wave_index)
+	var drop_service := get_node("/root/DropService") as DropServiceClass
+	var rng_service := get_node("/root/RNGService") as RNGServiceClass
+	var rewards := drop_service.compute_rewards(enemies_defeated, rng_service, current_wave_index)
 	
 	# Apply rewards
-	DropService.apply_rewards(rewards)
+	drop_service.apply_rewards(rewards)
 	
 	# Update wave progress
 	GameState.current_wave = max(GameState.current_wave, current_wave_index + 1)

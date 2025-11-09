@@ -37,12 +37,17 @@ func test_common_most_frequent() -> bool:
 		"legendary": 0
 	}
 	
+	# Create service instances for testing
+	var affix_service := AffixServiceClass.new()
+	affix_service._load_affix_definitions()
+	affix_service._load_loot_weights()
+	
 	# Roll many times
 	var trials := 1000
 	for i in range(trials):
-		var rng := RNGService.new()
+		var rng := RNGServiceClass.new()
 		rng.set_seed(i * 100)
-		var rarity := AffixService.roll_rarity(rng, 1.0)
+		var rarity := affix_service.roll_rarity(rng, 1.0)
 		rarity_counts[rarity] += 1
 	
 	# Common should be most frequent
@@ -79,12 +84,17 @@ func test_legendary_rarest() -> bool:
 		"legendary": 0
 	}
 	
+	# Create service instances for testing
+	var affix_service := AffixServiceClass.new()
+	affix_service._load_affix_definitions()
+	affix_service._load_loot_weights()
+	
 	# Roll many times
 	var trials := 1000
 	for i in range(trials):
-		var rng := RNGService.new()
+		var rng := RNGServiceClass.new()
 		rng.set_seed(i * 200)
-		var rarity := AffixService.roll_rarity(rng, 1.0)
+		var rarity := affix_service.roll_rarity(rng, 1.0)
 		rarity_counts[rarity] += 1
 	
 	# Legendary should be rarest
@@ -106,14 +116,19 @@ func test_legendary_rarest() -> bool:
 func test_rarity_factor_boost() -> bool:
 	print("\nTest: Rarity factor boosts rare drops")
 	
+	# Create service instances for testing
+	var affix_service := AffixServiceClass.new()
+	affix_service._load_affix_definitions()
+	affix_service._load_loot_weights()
+	
 	# Roll with rarity_factor=1.0 (baseline)
 	var baseline_legendary := 0
 	var trials := 1000
 	
 	for i in range(trials):
-		var rng := RNGService.new()
+		var rng := RNGServiceClass.new()
 		rng.set_seed(i * 300)
-		var rarity := AffixService.roll_rarity(rng, 1.0)
+		var rarity := affix_service.roll_rarity(rng, 1.0)
 		if rarity == "legendary":
 			baseline_legendary += 1
 	
@@ -121,9 +136,9 @@ func test_rarity_factor_boost() -> bool:
 	var boosted_legendary := 0
 	
 	for i in range(trials):
-		var rng := RNGService.new()
+		var rng := RNGServiceClass.new()
 		rng.set_seed(i * 300)
-		var rarity := AffixService.roll_rarity(rng, 2.0)
+		var rarity := affix_service.roll_rarity(rng, 2.0)
 		if rarity == "legendary":
 			boosted_legendary += 1
 	
