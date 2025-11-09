@@ -116,6 +116,11 @@ func save_game() -> bool:
 	save_data.current_wave = GameState.current_wave
 	save_data.lifetime_enemies_defeated = GameState.lifetime_enemies_defeated
 	
+	# Serialize meta upgrades (v6)
+	save_data.meta_upgrades = GameState.meta_upgrades.duplicate()
+	save_data.respec_tokens = GameState.respec_tokens
+	save_data.last_respec_time = GameState.last_respec_time
+	
 	# Atomic write: write to .tmp, then rename
 	var save_path := Constants.SAVE_FILE_PATH
 	var temp_path := save_path + ".tmp"
@@ -217,6 +222,15 @@ func load_game() -> bool:
 	GameState.essence_spent = save_data.essence_spent
 	GameState.current_wave = save_data.current_wave
 	GameState.lifetime_enemies_defeated = save_data.lifetime_enemies_defeated
+	
+	# Load meta upgrades (v6)
+	GameState.meta_upgrades = save_data.meta_upgrades.duplicate()
+	GameState.respec_tokens = save_data.respec_tokens
+	GameState.last_respec_time = save_data.last_respec_time
+	
+	# Sync meta upgrade levels to MetaUpgradeService and recompute effects
+	if has_node("/root/MetaUpgradeService"):
+		MetaUpgradeService.sync_levels_from_game_state()
 	
 	# Store last_saved_time for offline progression and UI display
 	last_saved_time = save_data.last_saved_time

@@ -44,6 +44,9 @@ func apply_offline_progression(now: float, economy: Node, game_state: Node) -> v
 	# Apply hard cap
 	delta_seconds = clamp(delta_seconds, 0, OFFLINE_HARD_CAP_SEC)
 	
+	# Apply meta upgrade offline gain multiplier
+	var offline_mult := 1.0 + game_state.meta_effects_cache.get("offline_gain_multiplier", 0.0)
+	
 	if delta_seconds > 0:
 		# Recompute rates using current upgrades (already loaded)
 		economy.recalculate_all_rates()
@@ -53,7 +56,7 @@ func apply_offline_progression(now: float, economy: Node, game_state: Node) -> v
 			var resource: ResourceModel = game_state.resources[resource_id]
 			if resource.unlocked:
 				var per_second_rate: float = economy.get_per_second_rate(resource_id)
-				var gain: float = per_second_rate * delta_seconds
+				var gain: float = per_second_rate * delta_seconds * offline_mult
 				game_state.add_resource_amount(resource_id, gain)
 				
 				# Track lifetime_gold for prestige (only for gold, only positive)

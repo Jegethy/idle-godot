@@ -193,12 +193,19 @@ func _get_player_combat_stats() -> Dictionary:
 	var essence := GameState.essence
 	var essence_combat_bonus := 1.0 + BalanceConstants.COMBAT_ESSENCE_MULTIPLIER * sqrt(essence)
 	
+	# Apply meta upgrade combat modifiers
+	var meta_attack_mult := 1.0 + GameState.meta_effects_cache.get("combat_attack_mult", 0.0)
+	var meta_defense_mult := 1.0 + GameState.meta_effects_cache.get("combat_defense_mult", 0.0)
+	var meta_crit_chance_add := GameState.meta_effects_cache.get("combat_crit_chance_add", 0.0)
+	var meta_crit_mult_add := GameState.meta_effects_cache.get("combat_crit_multiplier_add", 0.0)
+	var meta_speed_add := GameState.meta_effects_cache.get("combat_speed_add", 0.0)
+	
 	return {
-		"attack": GameState.player_stats.attack * essence_combat_bonus,
-		"defense": GameState.player_stats.defense * essence_combat_bonus,
-		"crit_chance": GameState.player_stats.crit_chance,
-		"crit_multiplier": GameState.player_stats.crit_multiplier,
-		"combat_speed": GameState.player_stats.combat_speed,
+		"attack": GameState.player_stats.attack * essence_combat_bonus * meta_attack_mult,
+		"defense": GameState.player_stats.defense * essence_combat_bonus * meta_defense_mult,
+		"crit_chance": GameState.player_stats.crit_chance + meta_crit_chance_add,
+		"crit_multiplier": GameState.player_stats.crit_multiplier + meta_crit_mult_add,
+		"combat_speed": GameState.player_stats.combat_speed + meta_speed_add,
 		"essence_combat_bonus": essence_combat_bonus
 	}
 

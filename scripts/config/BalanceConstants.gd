@@ -69,3 +69,16 @@ const REROLL_ESSENCE_GROWTH: float = 1.25  # Exponential growth factor for essen
 const MAX_REROLL_COUNT: int = 50  # Soft cap on reroll count
 const AFFIX_WAVE_SCALING_CAP: int = 100  # Cap on wave scaling for affix values
 const ANALYZER_MIN_IMPROVEMENT_THRESHOLD: float = 0.005  # 0.5% minimum to highlight improvement
+
+# Meta Upgrade Constants
+const META_REFUND_RATE: float = 0.6  # 60% of essence spent returned on respec
+const META_RESPEC_COOLDOWN_SEC: int = 3600  # 1 hour cooldown between respecs
+const META_ROI_MIN_DELTA: float = 0.0001  # Minimum delta to avoid division by near-zero
+
+# Meta Upgrade Category Colors (hex codes)
+const META_CATEGORY_COLORS: Dictionary = {
+	"idle": "#FFD700",      # Golden
+	"combat": "#DC143C",    # Crimson Red
+	"loot": "#32CD32",      # Lime Green
+	"prestige": "#9370DB"   # Medium Purple
+}

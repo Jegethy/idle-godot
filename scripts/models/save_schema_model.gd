@@ -25,6 +25,11 @@ var lifetime_enemies_defeated: int = 0
 # Inventory & Equipment state (v4)
 var equipped_slots: Dictionary = {}  # {slot: instance_id}
 
+# Meta Upgrade state (v6)
+var meta_upgrades: Dictionary = {}  # {id: level}
+var respec_tokens: int = 0
+var last_respec_time: int = 0
+
 func _init() -> void:
 	timestamp = Time.get_unix_time_from_system()
 	last_saved_time = timestamp
@@ -45,7 +50,10 @@ func to_dict() -> Dictionary:
 		"prestige_settings": prestige_settings,
 		"current_wave": current_wave,
 		"lifetime_enemies_defeated": lifetime_enemies_defeated,
-		"equipped_slots": equipped_slots
+		"equipped_slots": equipped_slots,
+		"meta_upgrades": meta_upgrades,
+		"respec_tokens": respec_tokens,
+		"last_respec_time": last_respec_time
 	}
 
 func from_dict(data: Dictionary) -> void:
@@ -64,6 +72,9 @@ func from_dict(data: Dictionary) -> void:
 	current_wave = data.get("current_wave", 0)
 	lifetime_enemies_defeated = data.get("lifetime_enemies_defeated", 0)
 	equipped_slots = data.get("equipped_slots", {})
+	meta_upgrades = data.get("meta_upgrades", {})
+	respec_tokens = data.get("respec_tokens", 0)
+	last_respec_time = data.get("last_respec_time", 0)
 
 func migrate(from_version: int) -> void:
 	# Apply migrations sequentially from old version to current
@@ -75,6 +86,8 @@ func migrate(from_version: int) -> void:
 		_migrate_v3_to_v4()
 	if from_version < 5:
 		_migrate_v4_to_v5()
+	if from_version < 6:
+		_migrate_v5_to_v6()
 
 func _migrate_v1_to_v2() -> void:
 	# Set version to 2
@@ -159,3 +172,19 @@ func _migrate_v4_to_v5() -> void:
 				item_data["reroll_count"] = 0
 	
 	print("Migrated save from v4 to v5")
+
+func _migrate_v5_to_v6() -> void:
+	# Set version to 6
+	version = 6
+	
+	# Initialize meta upgrade fields if not present
+	if meta_upgrades.is_empty():
+		meta_upgrades = {}
+	
+	if respec_tokens == 0:
+		respec_tokens = 0
+	
+	if last_respec_time == 0:
+		last_respec_time = 0
+	
+	print("Migrated save from v5 to v6")

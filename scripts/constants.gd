@@ -6,7 +6,7 @@ extends Node
 class_name Constants
 
 # Version
-const SAVE_VERSION: int = 5
+const SAVE_VERSION: int = 6
 
 # Tick rates (seconds)
 const IDLE_TICK_RATE: float = 1.0

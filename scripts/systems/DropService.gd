@@ -30,7 +30,12 @@ func compute_rewards(enemies_defeated: Array, rng_service: RNGService, wave_inde
 				continue
 			
 			var chance: float = drop_entry.get("chance", 0.0)
-			if rng_service.chance(chance):
+			
+			# Apply meta upgrade drop rate multiplier
+			var drop_mult := 1.0 + GameState.meta_effects_cache.get("drop_rate_multiplier", 0.0)
+			var adjusted_chance := min(1.0, chance * drop_mult)
+			
+			if rng_service.chance(adjusted_chance):
 				var item_id: String = drop_entry.get("item_id", "")
 				
 				# Get item definition

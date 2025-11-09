@@ -27,6 +27,7 @@ RNGService="*res://scripts/systems/RNGService.gd"
 EnemyDatabase="*res://scripts/systems/EnemyDatabase.gd"
 DropService="*res://scripts/systems/DropService.gd"
 AffixService="*res://scripts/systems/AffixService.gd"
+MetaUpgradeService="*res://scripts/systems/MetaUpgradeService.gd"
 
 [display]
 

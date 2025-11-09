@@ -12,6 +12,9 @@ signal prestige_performed(new_essence_total: float)
 signal rates_updated()
 signal essence_changed(total_essence: float)
 signal modifiers_recomputed()
+signal meta_upgrade_leveled(id: StringName, new_level: int)
+signal meta_upgrades_respecced(refunded_essence: float)
+signal meta_effects_updated()
 
 # State data
 var resources: Dictionary = {}  # {id: ResourceModel}
@@ -22,6 +25,12 @@ var essence: float = 0.0
 var lifetime_gold: float = 0.0
 var total_prestiges: int = 0
 var essence_spent: float = 0.0  # For future meta-upgrades
+
+# Meta Upgrade state (v6)
+var meta_upgrades: Dictionary = {}  # {id: level}
+var meta_effects_cache: Dictionary = {}  # {effect_type: total_value}
+var respec_tokens: int = 0
+var last_respec_time: int = 0
 
 # Combat state
 var current_wave: int = 0
