@@ -3,13 +3,13 @@ extends Node
 ## 
 ## Handles item and gold drops from defeated enemies.
 
-class_name DropService
+class_name DropServiceClass
 
 ## Compute rewards from defeated enemies
 ## enemies_defeated: Array of enemy Dictionaries
 ## wave_index: Current wave for affix scaling
 ## Returns: Dictionary with {gold: float, items: Array[ItemModel]}
-func compute_rewards(enemies_defeated: Array, rng_service: RNGService, wave_index: int = 0) -> Dictionary:
+func compute_rewards(enemies_defeated: Array, rng_service: RNGServiceClass, wave_index: int = 0) -> Dictionary:
 	var total_gold := 0.0
 	var items: Array[ItemModel] = []
 	
@@ -58,10 +58,11 @@ func compute_rewards(enemies_defeated: Array, rng_service: RNGService, wave_inde
 					continue
 				
 				# Roll rarity with enemy rarity factor boost
-				var rarity: String = AffixService.roll_rarity(rng_service, rarity_factor)
+				var affix_service := get_node("/root/AffixService") as AffixServiceClass
+				var rarity: String = affix_service.roll_rarity(rng_service, rarity_factor)
 				
 				# Generate item instance with affixes
-				var item := AffixService.generate_item_instance(item_def, rarity, wave_index, rng_service)
+				var item := affix_service.generate_item_instance(item_def, rarity, wave_index, rng_service)
 				items.append(item)
 	
 	return {

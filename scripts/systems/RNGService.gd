@@ -4,7 +4,7 @@ extends Node
 ## Provides seeded RNG for reproducible combat simulations.
 ## Uses Godot's RandomNumberGenerator with explicit seed control.
 
-class_name RNGService
+class_name RNGServiceClass
 
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var current_seed: int = 0

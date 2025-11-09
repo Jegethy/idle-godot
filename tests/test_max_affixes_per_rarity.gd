@@ -33,13 +33,18 @@ func test_common_max_affixes() -> bool:
 	var rarity := "common"
 	var wave_index := 10
 	
+	# Create service instances for testing
+	var affix_service := AffixServiceClass.new()
+	affix_service._load_affix_definitions()
+	affix_service._load_loot_weights()
+	
 	# Roll many times to ensure we never exceed
 	var max_seen := 0
 	
 	for i in range(100):
-		var rng := RNGService.new()
+		var rng := RNGServiceClass.new()
 		rng.set_seed(i * 1000)
-		var affixes := AffixService.roll_affixes(base_item, rarity, wave_index, rng)
+		var affixes := affix_service.roll_affixes(base_item, rarity, wave_index, rng)
 		
 		if affixes.size() > 1:
 			print("  ✗ Common item rolled %d affixes (max should be 1)" % affixes.size())
@@ -57,14 +62,19 @@ func test_legendary_max_affixes() -> bool:
 	var rarity := "legendary"
 	var wave_index := 50
 	
+	# Create service instances for testing
+	var affix_service := AffixServiceClass.new()
+	affix_service._load_affix_definitions()
+	affix_service._load_loot_weights()
+	
 	# Roll many times
 	var max_seen := 0
 	var count_with_3 := 0
 	
 	for i in range(100):
-		var rng := RNGService.new()
+		var rng := RNGServiceClass.new()
 		rng.set_seed(i * 2000)
-		var affixes := AffixService.roll_affixes(base_item, rarity, wave_index, rng)
+		var affixes := affix_service.roll_affixes(base_item, rarity, wave_index, rng)
 		
 		if affixes.size() > 3:
 			print("  ✗ Legendary item rolled %d affixes (max should be 3)" % affixes.size())
@@ -88,13 +98,18 @@ func test_epic_max_affixes() -> bool:
 	var rarity := "epic"
 	var wave_index := 30
 	
+	# Create service instances for testing
+	var affix_service := AffixServiceClass.new()
+	affix_service._load_affix_definitions()
+	affix_service._load_loot_weights()
+	
 	# Roll many times
 	var max_seen := 0
 	
 	for i in range(100):
-		var rng := RNGService.new()
+		var rng := RNGServiceClass.new()
 		rng.set_seed(i * 3000)
-		var affixes := AffixService.roll_affixes(base_item, rarity, wave_index, rng)
+		var affixes := affix_service.roll_affixes(base_item, rarity, wave_index, rng)
 		
 		if affixes.size() > 2:
 			print("  ✗ Epic item rolled %d affixes (max should be 2)" % affixes.size())

@@ -327,11 +327,14 @@ func reroll_item(instance_id: String) -> bool:
 	
 	# Generate new affixes using current wave index
 	var wave_index: int = GameState.current_wave
-	var new_affixes := AffixService.roll_affixes(
+	var affix_service := get_node("/root/AffixService") as AffixServiceClass
+	var rng_service := get_node("/root/RNGService") as RNGServiceClass
+	
+	var new_affixes: Array = affix_service.roll_affixes(
 		{"id": item.base_id},  # Use base_id for affix rolling
 		item.rarity,
 		wave_index,
-		RNGService
+		rng_service
 	)
 	
 	# Update item
