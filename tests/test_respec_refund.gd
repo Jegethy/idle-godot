@@ -166,7 +166,7 @@ func test_respec_empty() -> bool:
 		print("  ✗ Respec should succeed even with no upgrades")
 		return false
 	
-	var refunded := result.get("refunded", -1.0)
+	var refunded: float = float(result.get("refunded", -1.0))
 	if not is_equal_approx(refunded, 0.0):
 		print("  ✗ Expected 0 refund, got %.2f" % refunded)
 		return false

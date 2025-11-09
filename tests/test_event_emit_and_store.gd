@@ -10,7 +10,7 @@ func _ready() -> void:
 	var all_passed := true
 	
 	# Test 1: Emit events and check storage
-	all_passed = test_emit_and_store() and all_passed
+	all_passed = await test_emit_and_store() and all_passed
 	
 	# Test 2: Ring buffer size limit
 	all_passed = test_ring_buffer_limit() and all_passed

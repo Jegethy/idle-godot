@@ -55,7 +55,7 @@ func test_idle_multiplier_payback() -> bool:
 		print("  ✗ Payback should be finite for idle multiplier")
 		return false
 	
-	var payback := payback_info.get("payback_seconds", INF)
+	var payback: float = float(payback_info.get("payback_seconds", INF))
 	var expected := 10.0 / 2.0
 	
 	if not is_equal_approx(payback, expected):
@@ -91,7 +91,7 @@ func test_idle_additive_payback() -> bool:
 		print("  ✗ Payback should be finite for idle additive")
 		return false
 	
-	var payback := payback_info.get("payback_seconds", INF)
+	var payback: float = float(payback_info.get("payback_seconds", INF))
 	var expected := 15.0 / 0.5
 	
 	if not is_equal_approx(payback, expected):

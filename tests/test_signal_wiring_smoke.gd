@@ -14,13 +14,13 @@ func _ready() -> void:
 	var all_passed := true
 	
 	# Test 1: Resource changed event
-	all_passed = test_resource_changed_signal() and all_passed
+	all_passed = await test_resource_changed_signal() and all_passed
 	
 	# Test 2: Upgrade purchased event
-	all_passed = test_upgrade_purchased_signal() and all_passed
+	all_passed = await test_upgrade_purchased_signal() and all_passed
 	
 	# Test 3: Prestige performed event
-	all_passed = test_prestige_performed_signal() and all_passed
+	all_passed = await test_prestige_performed_signal() and all_passed
 	
 	print("\n=== Test Results ===")
 	if all_passed:
