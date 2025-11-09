@@ -63,3 +63,52 @@ static func format_percentage(value: float, decimals: int = 0) -> String:
 	else:
 		var format_str := "%%.%df%%%%" % decimals
 		return format_str % percent
+
+## Format a delta between two values as a percentage change
+## Returns: "+X.Y%" or "-X.Y%" or "±0%"
+static func format_delta(old_value: float, new_value: float, decimals: int = 1) -> String:
+	if abs(old_value) < 0.0001:  # Avoid division by zero
+		if abs(new_value) < 0.0001:
+			return "±0%"
+		else:
+			return "+∞%"  # New value when old was zero
+	
+	var delta_percent := ((new_value - old_value) / abs(old_value)) * 100.0
+	var sign := "+" if delta_percent > 0.0 else ""
+	
+	if abs(delta_percent) < 0.01:
+		return "±0%"
+	
+	var format_str := "%s%%.%df%%%%" % [sign, decimals]
+	return format_str % delta_percent
+
+## Format an effect for display in UI
+## Returns formatted string like "+5.0 Attack" or "+10% Idle Rate"
+static func format_effect_line(effect: Dictionary) -> String:
+	var effect_type: String = effect.get("type", "")
+	var value: float = effect.get("value", 0.0)
+	
+	match effect_type:
+		Constants.EffectType.COMBAT_ATTACK_ADD:
+			return "+%.0f Attack" % value
+		Constants.EffectType.COMBAT_DEFENSE_ADD:
+			return "+%.0f Defense" % value
+		Constants.EffectType.COMBAT_ATTACK_MULT:
+			return "+%s Attack" % format_percentage(value)
+		Constants.EffectType.COMBAT_DEFENSE_MULT:
+			return "+%s Defense" % format_percentage(value)
+		Constants.EffectType.COMBAT_CRIT_CHANCE_ADD:
+			return "+%s Crit Chance" % format_percentage(value)
+		Constants.EffectType.COMBAT_CRIT_MULTIPLIER_ADD:
+			return "+%s Crit Damage" % format_percentage(value)
+		Constants.EffectType.COMBAT_SPEED_ADD:
+			return "+%s Combat Speed" % format_percentage(value)
+		Constants.EffectType.IDLE_RATE_ADD:
+			var resource: String = effect.get("resource", "gold")
+			return "+%.1f %s/sec" % [value, resource.capitalize()]
+		Constants.EffectType.IDLE_RATE_MULTIPLIER:
+			return "+%s Idle Rate" % format_percentage(value)
+		Constants.EffectType.ESSENCE_MULTIPLIER:
+			return "+%s Essence Gain" % format_percentage(value)
+		_:
+			return "Unknown Effect"

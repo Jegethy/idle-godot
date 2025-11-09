@@ -73,6 +73,8 @@ func migrate(from_version: int) -> void:
 		_migrate_v2_to_v3()
 	if from_version < 4:
 		_migrate_v3_to_v4()
+	if from_version < 5:
+		_migrate_v4_to_v5()
 
 func _migrate_v1_to_v2() -> void:
 	# Set version to 2
@@ -136,3 +138,24 @@ func _migrate_v3_to_v4() -> void:
 		inventory = []
 	
 	print("Migrated save from v3 to v4")
+
+func _migrate_v4_to_v5() -> void:
+	# Set version to 5
+	version = 5
+	
+	# Migrate inventory items to include affix fields
+	for item_data in inventory:
+		if item_data is Dictionary:
+			# Add base_id if missing (default to item id)
+			if not item_data.has("base_id"):
+				item_data["base_id"] = item_data.get("id", "")
+			
+			# Add affixes array if missing
+			if not item_data.has("affixes"):
+				item_data["affixes"] = []
+			
+			# Add reroll_count if missing
+			if not item_data.has("reroll_count"):
+				item_data["reroll_count"] = 0
+	
+	print("Migrated save from v4 to v5")

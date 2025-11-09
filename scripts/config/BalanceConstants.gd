@@ -60,3 +60,12 @@ const RARITY_COLORS: Dictionary = {
 	"epic": "#9C27B0",
 	"legendary": "#FF9800"
 }
+
+# Affix & Reroll Constants
+const BASE_REROLL_GOLD: float = 250.0  # Base gold cost for rerolling affixes
+const REROLL_GOLD_GROWTH: float = 1.35  # Exponential growth factor for reroll cost
+const BASE_REROLL_ESSENCE: float = 1.0  # Base essence cost for rerolling (optional)
+const REROLL_ESSENCE_GROWTH: float = 1.25  # Exponential growth factor for essence cost
+const MAX_REROLL_COUNT: int = 50  # Soft cap on reroll count
+const AFFIX_WAVE_SCALING_CAP: int = 100  # Cap on wave scaling for affix values
+const ANALYZER_MIN_IMPROVEMENT_THRESHOLD: float = 0.005  # 0.5% minimum to highlight improvement
