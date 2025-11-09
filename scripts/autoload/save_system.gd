@@ -119,7 +119,7 @@ func save_game() -> bool:
 	# Serialize meta upgrades (v6)
 	save_data.meta_upgrades = GameState.meta_upgrades.duplicate()
 	save_data.respec_tokens = GameState.respec_tokens
-	save_data.last_respec_time = GameState.last_respec_time
+	save_data.last_respec_time = int(GameState.last_respec_time)
 	
 	# Atomic write: write to .tmp, then rename
 	var save_path := Constants.SAVE_FILE_PATH
@@ -149,9 +149,9 @@ func save_game() -> bool:
 			DirAccess.remove_absolute(backup_path)
 		
 		# Rename current save to backup
-		var err := DirAccess.rename_absolute(abs_save_path, abs_backup_path)
-		if err != OK:
-			push_warning("Failed to create backup: %d" % err)
+		var backup_err := DirAccess.rename_absolute(abs_save_path, abs_backup_path)
+		if backup_err != OK:
+			push_warning("Failed to create backup: %d" % backup_err)
 	
 	# Rename temp to main save
 	var err := DirAccess.rename_absolute(abs_temp_path, abs_save_path)

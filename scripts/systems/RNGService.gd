@@ -16,9 +16,9 @@ func _ready() -> void:
 	print("RNGService initialized with seed: %d" % current_seed)
 
 ## Set the seed for deterministic random generation
-func set_seed(seed: int) -> void:
-	current_seed = seed
-	rng.seed = seed
+func set_seed(p_seed: int) -> void:
+	current_seed = p_seed
+	rng.seed = p_seed
 
 ## Get current seed value
 func get_seed() -> int:
