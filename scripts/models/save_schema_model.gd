@@ -18,6 +18,10 @@ var total_prestiges: int = 0
 var essence_spent: float = 0.0
 var prestige_settings: Dictionary = {}
 
+# Combat state (v3)
+var current_wave: int = 0
+var lifetime_enemies_defeated: int = 0
+
 func _init() -> void:
 	timestamp = Time.get_unix_time_from_system()
 	last_saved_time = timestamp
@@ -35,7 +39,9 @@ func to_dict() -> Dictionary:
 		"lifetime_gold": lifetime_gold,
 		"total_prestiges": total_prestiges,
 		"essence_spent": essence_spent,
-		"prestige_settings": prestige_settings
+		"prestige_settings": prestige_settings,
+		"current_wave": current_wave,
+		"lifetime_enemies_defeated": lifetime_enemies_defeated
 	}
 
 func from_dict(data: Dictionary) -> void:
@@ -51,6 +57,8 @@ func from_dict(data: Dictionary) -> void:
 	total_prestiges = data.get("total_prestiges", 0)
 	essence_spent = data.get("essence_spent", 0.0)
 	prestige_settings = data.get("prestige_settings", {})
+	current_wave = data.get("current_wave", 0)
+	lifetime_enemies_defeated = data.get("lifetime_enemies_defeated", 0)
 
 func migrate(from_version: int) -> void:
 	# Apply migrations sequentially from old version to current

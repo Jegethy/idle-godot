@@ -1,0 +1,90 @@
+{
+  "enemies": [
+    {
+      "id": "slime",
+      "name": "Slime",
+      "base_hp": 50.0,
+      "base_attack": 5.0,
+      "base_defense": 2.0,
+      "base_gold_reward": 10.0,
+      "rarity_factor": 1.0,
+      "drop_table": [
+        {
+          "item_id": "health_potion",
+          "weight": 10,
+          "min_qty": 1,
+          "max_qty": 2,
+          "chance": 0.2
+        }
+      ]
+    },
+    {
+      "id": "goblin",
+      "name": "Goblin",
+      "base_hp": 75.0,
+      "base_attack": 8.0,
+      "base_defense": 4.0,
+      "base_gold_reward": 15.0,
+      "rarity_factor": 1.2,
+      "drop_table": [
+        {
+          "item_id": "rusty_sword",
+          "weight": 5,
+          "min_qty": 1,
+          "max_qty": 1,
+          "chance": 0.1
+        },
+        {
+          "item_id": "health_potion",
+          "weight": 15,
+          "min_qty": 1,
+          "max_qty": 3,
+          "chance": 0.25
+        }
+      ]
+    },
+    {
+      "id": "skeleton",
+      "name": "Skeleton",
+      "base_hp": 100.0,
+      "base_attack": 12.0,
+      "base_defense": 6.0,
+      "base_gold_reward": 20.0,
+      "rarity_factor": 1.5,
+      "drop_table": [
+        {
+          "item_id": "bone_shield",
+          "weight": 8,
+          "min_qty": 1,
+          "max_qty": 1,
+          "chance": 0.15
+        }
+      ]
+    },
+    {
+      "id": "boss_core",
+      "name": "Boss Core",
+      "base_hp": 500.0,
+      "base_attack": 25.0,
+      "base_defense": 15.0,
+      "base_gold_reward": 100.0,
+      "rarity_factor": 3.0,
+      "drop_table": [
+        {
+          "item_id": "epic_gem",
+          "weight": 20,
+          "min_qty": 1,
+          "max_qty": 1,
+          "chance": 0.5
+        },
+        {
+          "item_id": "legendary_artifact",
+          "weight": 5,
+          "min_qty": 1,
+          "max_qty": 1,
+          "chance": 0.05
+        }
+      ]
+    }
+  ]
+}

@@ -23,3 +23,19 @@ const PRESTIGE_CURRENT_GOLD_REQUIREMENT: float = 500_000.0  # Alternative: curre
 
 # Prestige Settings Schema Version
 const PRESTIGE_FORMULA_VERSION: int = 1  # Track formula changes for future migrations
+
+# Combat System Constants
+const COMBAT_TICK_SECONDS: float = 0.5  # Combat simulation tick duration
+const PLAYER_BASE_CRIT_CHANCE: float = 0.05  # 5% base crit chance
+const PLAYER_BASE_CRIT_MULTIPLIER: float = 2.0  # 2x damage on crit
+const COMBAT_ESSENCE_MULTIPLIER: float = 0.01  # Essence bonus to combat stats (1% per sqrt(essence))
+const BASE_PLAYER_HP: float = 100.0  # Base player HP before bonuses
+
+# Wave Scaling Multipliers
+const ELITE_HP_MULTIPLIER: float = 2.5  # Elite enemies have 2.5x HP
+const ELITE_ATTACK_MULTIPLIER: float = 1.5  # Elite enemies have 1.5x attack
+const BOSS_HP_MULTIPLIER: float = 5.0  # Boss enemies have 5x HP
+const BOSS_ATTACK_MULTIPLIER: float = 2.0  # Boss enemies have 2x attack
+
+# Combat Simulation Limits
+const MAX_SIM_TICKS: int = 1000  # Maximum ticks to prevent infinite loops

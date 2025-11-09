@@ -23,6 +23,9 @@ InventorySystem="*res://scripts/autoload/inventory_system.gd"
 UpgradeService="*res://scripts/systems/UpgradeService.gd"
 UnlockService="*res://scripts/systems/UnlockService.gd"
 PrestigeService="*res://scripts/systems/PrestigeService.gd"
+RNGService="*res://scripts/systems/RNGService.gd"
+EnemyDatabase="*res://scripts/systems/EnemyDatabase.gd"
+DropService="*res://scripts/systems/DropService.gd"
 
 [display]
 

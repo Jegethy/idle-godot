@@ -22,6 +22,10 @@ var lifetime_gold: float = 0.0
 var total_prestiges: int = 0
 var essence_spent: float = 0.0  # For future meta-upgrades
 
+# Combat state
+var current_wave: int = 0
+var lifetime_enemies_defeated: int = 0
+
 func _ready() -> void:
 	_initialize_default_state()
 
