@@ -10,6 +10,7 @@ signal upgrade_purchased(upgrade_id: String, new_level: int)
 signal item_acquired(item_id: String, quantity: int)
 signal prestige_performed(new_essence_total: float)
 signal rates_updated()
+signal essence_changed(total_essence: float)
 
 # State data
 var resources: Dictionary = {}  # {id: ResourceModel}
@@ -17,6 +18,9 @@ var upgrades: Dictionary = {}   # {id: UpgradeModel}
 var items: Array[ItemModel] = []
 var player_stats: PlayerStatsModel = PlayerStatsModel.new()
 var essence: float = 0.0
+var lifetime_gold: float = 0.0
+var total_prestiges: int = 0
+var essence_spent: float = 0.0  # For future meta-upgrades
 
 func _ready() -> void:
 	_initialize_default_state()

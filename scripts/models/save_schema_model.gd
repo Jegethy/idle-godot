@@ -13,6 +13,10 @@ var upgrades: Dictionary = {}
 var inventory: Array[Dictionary] = []
 var player_stats: Dictionary = {}
 var essence: float = 0.0
+var lifetime_gold: float = 0.0
+var total_prestiges: int = 0
+var essence_spent: float = 0.0
+var prestige_settings: Dictionary = {}
 
 func _init() -> void:
 	timestamp = Time.get_unix_time_from_system()
@@ -27,7 +31,11 @@ func to_dict() -> Dictionary:
 		"upgrades": upgrades,
 		"inventory": inventory,
 		"player_stats": player_stats,
-		"essence": essence
+		"essence": essence,
+		"lifetime_gold": lifetime_gold,
+		"total_prestiges": total_prestiges,
+		"essence_spent": essence_spent,
+		"prestige_settings": prestige_settings
 	}
 
 func from_dict(data: Dictionary) -> void:
@@ -39,14 +47,17 @@ func from_dict(data: Dictionary) -> void:
 	inventory = data.get("inventory", [])
 	player_stats = data.get("player_stats", {})
 	essence = data.get("essence", 0.0)
+	lifetime_gold = data.get("lifetime_gold", 0.0)
+	total_prestiges = data.get("total_prestiges", 0)
+	essence_spent = data.get("essence_spent", 0.0)
+	prestige_settings = data.get("prestige_settings", {})
 
 func migrate(from_version: int) -> void:
 	# Apply migrations sequentially from old version to current
 	if from_version < 2:
 		_migrate_v1_to_v2()
-	# Future migrations can be added here:
-	# if from_version < 3:
-	#     _migrate_v2_to_v3()
+	if from_version < 3:
+		_migrate_v2_to_v3()
 
 func _migrate_v1_to_v2() -> void:
 	# Set version to 2
@@ -68,3 +79,31 @@ func _migrate_v1_to_v2() -> void:
 			}
 	
 	print("Migrated save from v1 to v2")
+
+func _migrate_v2_to_v3() -> void:
+	# Set version to 3
+	version = 3
+	
+	# Add new prestige fields with defaults
+	if lifetime_gold == 0.0:
+		# Initialize lifetime_gold with current gold if not already set
+		if resources.has("gold") and resources["gold"].has("amount"):
+			lifetime_gold = resources["gold"]["amount"]
+		else:
+			lifetime_gold = 0.0
+	
+	# Initialize total_prestiges if not present
+	if total_prestiges == 0:
+		total_prestiges = 0
+	
+	# Initialize essence_spent if not present
+	if essence_spent == 0.0:
+		essence_spent = 0.0
+	
+	# Initialize prestige_settings with formula version
+	if prestige_settings.is_empty():
+		prestige_settings = {
+			"formula_version": BalanceConstants.PRESTIGE_FORMULA_VERSION
+		}
+	
+	print("Migrated save from v2 to v3")

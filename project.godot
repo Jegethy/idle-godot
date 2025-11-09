@@ -22,6 +22,7 @@ CombatSystem="*res://scripts/autoload/combat_system.gd"
 InventorySystem="*res://scripts/autoload/inventory_system.gd"
 UpgradeService="*res://scripts/systems/UpgradeService.gd"
 UnlockService="*res://scripts/systems/UnlockService.gd"
+PrestigeService="*res://scripts/systems/PrestigeService.gd"
 
 [display]
 
