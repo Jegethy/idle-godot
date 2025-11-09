@@ -16,6 +16,17 @@ extends PanelContainer
 @onready var delete_all_button: Button = %DeleteAllButton
 @onready var copy_session_button: Button = %CopySessionButton
 
+# Cloud upload UI references (optional - will be null if not in scene)
+@onready var cloud_upload_checkbox: CheckBox = get_node_or_null("%CloudUploadCheckBox")
+@onready var endpoint_url_line: LineEdit = get_node_or_null("%EndpointURLLineEdit")
+@onready var api_key_line: LineEdit = get_node_or_null("%APIKeyLineEdit")
+@onready var api_secret_line: LineEdit = get_node_or_null("%APISecretLineEdit")
+@onready var test_connection_button: Button = get_node_or_null("%TestConnectionButton")
+@onready var upload_now_button: Button = get_node_or_null("%UploadNowButton")
+@onready var pause_resume_button: Button = get_node_or_null("%PauseResumeButton")
+@onready var clear_backlog_button: Button = get_node_or_null("%ClearBacklogButton")
+@onready var upload_status_label: Label = get_node_or_null("%UploadStatusLabel")
+
 # Update timer
 var update_timer: float = 0.0
 const UPDATE_INTERVAL: float = 1.0  # Update UI every second
@@ -39,6 +50,32 @@ func _ready() -> void:
 	
 	if copy_session_button:
 		copy_session_button.pressed.connect(_on_copy_session_pressed)
+	
+	# Connect cloud upload UI signals (if present)
+	if cloud_upload_checkbox:
+		cloud_upload_checkbox.toggled.connect(_on_cloud_upload_toggled)
+	
+	if test_connection_button:
+		test_connection_button.pressed.connect(_on_test_connection_pressed)
+	
+	if upload_now_button:
+		upload_now_button.pressed.connect(_on_upload_now_pressed)
+	
+	if pause_resume_button:
+		pause_resume_button.pressed.connect(_on_pause_resume_pressed)
+	
+	if clear_backlog_button:
+		clear_backlog_button.pressed.connect(_on_clear_backlog_pressed)
+	
+	# Connect endpoint/key changes
+	if endpoint_url_line:
+		endpoint_url_line.text_changed.connect(_on_endpoint_changed)
+	
+	if api_key_line:
+		api_key_line.text_changed.connect(_on_api_key_changed)
+	
+	if api_secret_line:
+		api_secret_line.text_changed.connect(_on_api_secret_changed)
 	
 	# Connect to AnalyticsService signals
 	if AnalyticsService:
@@ -84,6 +121,9 @@ func _update_ui() -> void:
 	
 	# Update event list (only when events change to avoid flickering)
 	_update_event_list()
+	
+	# Update cloud upload status (if UI present)
+	_update_cloud_upload_ui()
 
 ## Update event list display
 func _update_event_list() -> void:
@@ -208,3 +248,143 @@ func _on_analytics_enabled_changed(is_enabled: bool) -> void:
 func _on_event_emitted(event_name: String) -> void:
 	# Event list will be updated on next frame
 	pass
+
+## Update cloud upload UI controls
+func _update_cloud_upload_ui() -> void:
+	if not AnalyticsService or not AnalyticsService.uploader:
+		return
+	
+	var uploader = AnalyticsService.uploader
+	var status := uploader.get_status()
+	
+	# Update checkbox
+	if cloud_upload_checkbox:
+		cloud_upload_checkbox.button_pressed = status["enabled"]
+	
+	# Update status label
+	if upload_status_label:
+		var status_text := "Uploader: %s | Last: %s @ %s | Queue: %d events" % [
+			status["status"],
+			status["last_upload"],
+			status["last_time"],
+			status["queued_events"]
+		]
+		
+		if status["backoff_sec"] > 0:
+			status_text += " | Backoff: %.0fs" % status["backoff_sec"]
+		
+		upload_status_label.text = status_text
+	
+	# Update pause/resume button text
+	if pause_resume_button:
+		pause_resume_button.text = "Resume" if status["paused"] else "Pause"
+	
+	# Load and display settings (one-time on ready, not every frame)
+	if endpoint_url_line and endpoint_url_line.text.is_empty():
+		var upload_settings := AnalyticsService.load_upload_settings()
+		endpoint_url_line.text = upload_settings.get("endpoint_url", "")
+		if api_key_line:
+			api_key_line.text = upload_settings.get("api_key", "")
+		if api_secret_line:
+			api_secret_line.secret = true
+			api_secret_line.text = upload_settings.get("api_secret", "")
+
+## Cloud upload checkbox toggled
+func _on_cloud_upload_toggled(is_enabled: bool) -> void:
+	# Warn if analytics is disabled
+	if is_enabled and not AnalyticsService.enabled:
+		_show_notification("Enable analytics first!")
+		if cloud_upload_checkbox:
+			cloud_upload_checkbox.button_pressed = false
+		return
+	
+	# Save setting
+	_save_upload_setting("cloud_upload_enabled", is_enabled)
+	
+	# Reload uploader
+	AnalyticsService.reload_uploader()
+	
+	_show_notification("Cloud upload %s" % ("enabled" if is_enabled else "disabled"))
+
+## Test connection
+func _on_test_connection_pressed() -> void:
+	if not AnalyticsService or not AnalyticsService.uploader:
+		return
+	
+	_show_notification("Testing connection...")
+	var success := AnalyticsService.uploader.test_connection()
+	
+	if success:
+		_show_notification("Connection test successful!")
+	else:
+		_show_notification("Connection test failed!")
+
+## Upload now
+func _on_upload_now_pressed() -> void:
+	if not AnalyticsService or not AnalyticsService.uploader:
+		return
+	
+	_show_notification("Uploading...")
+	AnalyticsService.uploader.upload_now()
+
+## Pause/Resume uploads
+func _on_pause_resume_pressed() -> void:
+	if not AnalyticsService or not AnalyticsService.uploader:
+		return
+	
+	var uploader = AnalyticsService.uploader
+	var status := uploader.get_status()
+	
+	if status["paused"]:
+		uploader.resume()
+		_show_notification("Uploads resumed")
+	else:
+		uploader.pause()
+		_show_notification("Uploads paused")
+
+## Clear backlog
+func _on_clear_backlog_pressed() -> void:
+	if not AnalyticsService or not AnalyticsService.uploader:
+		return
+	
+	AnalyticsService.uploader.clear_backlog(true)
+	_show_notification("Backlog cleared")
+
+## Endpoint URL changed
+func _on_endpoint_changed(new_text: String) -> void:
+	_save_upload_setting("endpoint_url", new_text)
+	AnalyticsService.reload_uploader()
+
+## API key changed
+func _on_api_key_changed(new_text: String) -> void:
+	_save_upload_setting("api_key", new_text)
+	AnalyticsService.reload_uploader()
+
+## API secret changed
+func _on_api_secret_changed(new_text: String) -> void:
+	_save_upload_setting("api_secret", new_text)
+	AnalyticsService.reload_uploader()
+
+## Save a single upload setting to file
+func _save_upload_setting(key: String, value: Variant) -> void:
+	var settings_path := AnalyticsConstants.SETTINGS_FILE
+	
+	# Load existing settings
+	var settings := {}
+	if FileAccess.file_exists(settings_path):
+		var file := FileAccess.open(settings_path, FileAccess.READ)
+		if file:
+			var json := JSON.new()
+			if json.parse(file.get_as_text()) == OK:
+				settings = json.data if json.data is Dictionary else {}
+			file.close()
+	
+	# Update setting
+	settings[key] = value
+	
+	# Save back
+	var file := FileAccess.open(settings_path, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(settings, "\t"))
+		file.close()
+
