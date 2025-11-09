@@ -3,8 +3,8 @@ extends Node
 ## 
 ## Evaluates unlock conditions and manages unlocking of game content.
 
-# Signal emitted when something unlocks
-signal content_unlocked(content_type: String, content_id: String)
+# Note: content_unlocked signal removed - not currently emitted
+# TODO: Add signal back when unlock logic is fully implemented
 
 func _ready() -> void:
 	print("UnlockService initialized")
