@@ -4,14 +4,13 @@ extends Node
 ## Handles upgrade definitions, leveling, prerequisite validation,
 ## effect aggregation, respec logic, and integration with game systems.
 
-class_name MetaUpgradeService
+class_name MetaUpgradeServiceClass
 
 # Signals
 signal meta_upgrade_leveled(id: StringName, new_level: int)
 signal meta_upgrades_respecced(refunded_essence: float)
 signal meta_effects_updated()
 signal essence_changed(total_essence: float)  # Emitted when essence changes due to meta upgrades
-signal roi_dashboard_updated()
 
 # Upgrade definitions loaded from JSON
 var definitions: Dictionary = {}  # {id: MetaUpgrade}

@@ -229,8 +229,13 @@ func load_game() -> bool:
 	GameState.last_respec_time = save_data.last_respec_time
 	
 	# Sync meta upgrade levels to MetaUpgradeService and recompute effects
-	# MetaUpgradeService is an autoload, so it's always available
-	MetaUpgradeService.sync_levels_from_game_state()
+	# MetaUpgradeService is an autoload, so access it as an instance
+	if has_node("/root/MetaUpgradeService"):
+		var meta_service := get_node("/root/MetaUpgradeService") as MetaUpgradeServiceClass
+		if meta_service:
+			meta_service.sync_levels_from_game_state()
+	else:
+		push_warning("MetaUpgradeService autoload not found; skipping meta sync.")
 	
 	# Store last_saved_time for offline progression and UI display
 	last_saved_time = save_data.last_saved_time
