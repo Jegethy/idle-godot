@@ -18,8 +18,7 @@ func can_prestige() -> bool:
 	var has_current_gold: bool = false
 	
 	# Check lifetime_gold requirement
-	if GameState.has("lifetime_gold"):
-		has_lifetime_gold = GameState.lifetime_gold >= BalanceConstants.PRESTIGE_REQUIRED_LIFETIME_GOLD
+	has_lifetime_gold = GameState.lifetime_gold >= BalanceConstants.PRESTIGE_REQUIRED_LIFETIME_GOLD
 	
 	# Check current gold requirement
 	if GameState.resources.has("gold"):
@@ -30,12 +29,10 @@ func can_prestige() -> bool:
 
 ## Preview how much essence would be gained if prestiging now
 func preview_essence_gain() -> int:
-	var lifetime_gold: float = 0.0
+	var lifetime_gold: float = GameState.lifetime_gold
 	
-	if GameState.has("lifetime_gold"):
-		lifetime_gold = GameState.lifetime_gold
-	elif GameState.resources.has("gold"):
-		# Fallback: use current gold if lifetime_gold not available
+	# Fallback: use current gold if lifetime_gold is 0
+	if lifetime_gold == 0.0 and GameState.resources.has("gold"):
 		lifetime_gold = GameState.resources["gold"].amount
 	
 	return _calculate_essence_gain(lifetime_gold)
@@ -71,13 +68,9 @@ func perform_prestige() -> Dictionary:
 	var gained: int = preview_essence_gain()
 	
 	# Add to essence
-	if not GameState.has("essence"):
-		GameState.set("essence", 0.0)
 	GameState.essence += float(gained)
 	
 	# Increment total_prestiges
-	if not GameState.has("total_prestiges"):
-		GameState.set("total_prestiges", 0)
 	GameState.total_prestiges += 1
 	
 	# Store values before reset for return
@@ -132,16 +125,10 @@ func update_lifetime_gold(delta_gold: float) -> void:
 	if delta_gold <= 0:
 		return
 	
-	if not GameState.has("lifetime_gold"):
-		GameState.set("lifetime_gold", 0.0)
-	
 	GameState.lifetime_gold += delta_gold
 
 ## Calculate current essence multiplier for idle rates
 func get_essence_multiplier() -> float:
-	if not GameState.has("essence"):
-		return 1.0
-	
 	var essence: float = GameState.essence
 	if essence <= 0:
 		return 1.0

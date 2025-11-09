@@ -34,12 +34,12 @@ func _process(_delta: float) -> void:
 func _update_display() -> void:
 	# Update lifetime gold
 	if lifetime_gold_label:
-		var lifetime_gold: float = GameState.lifetime_gold if GameState.has("lifetime_gold") else 0.0
+		var lifetime_gold: float = GameState.lifetime_gold
 		lifetime_gold_label.text = "Lifetime Gold: %s" % NumberFormatter.format_short(lifetime_gold)
 	
 	# Update essence
 	if essence_label:
-		var essence: float = GameState.essence if GameState.has("essence") else 0.0
+		var essence: float = GameState.essence
 		essence_label.text = "Essence: %s" % NumberFormatter.format_short(essence)
 	
 	# Update projected gain
