@@ -19,7 +19,7 @@ signal resource_changed(resource_id: String, new_amount: float)
 var resources: Dictionary = {}  # {id: ResourceModel}
 var upgrades: Dictionary = {}   # {id: UpgradeModel}
 var items: Array[ItemModel] = []
-var player_stats: PlayerStatsModel = PlayerStatsModel.new()
+var player_stats: PlayerStatsModel = null
 var essence: float = 0.0
 var lifetime_gold: float = 0.0
 var total_prestiges: int = 0
@@ -52,6 +52,9 @@ var combat_modifiers: Dictionary = {
 }
 
 func _ready() -> void:
+	# Initialize player stats
+	player_stats = PlayerStatsModel.new()
+	
 	_initialize_default_state()
 
 func _initialize_default_state() -> void:

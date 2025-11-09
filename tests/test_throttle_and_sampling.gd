@@ -31,7 +31,6 @@ func test_zero_sampling() -> bool:
 	
 	# Enable analytics
 	AnalyticsService.set_enabled(true)
-	await get_tree().process_frame
 	
 	# Set sampling to 0.0 for a specific event type
 	AnalyticsService.event_sample_overrides["test.sampled"] = 0.0
@@ -75,7 +74,6 @@ func test_throttling() -> bool:
 	
 	# Enable analytics
 	AnalyticsService.set_enabled(true)
-	await get_tree().process_frame
 	
 	# Set throttle window to 1 second for test event
 	AnalyticsService.throttle_windows["test.throttled"] = 1.0
@@ -100,8 +98,8 @@ func test_throttling() -> bool:
 		AnalyticsService.set_enabled(false)
 		return false
 	
-	# Wait for throttle window to expire
-	await get_tree().create_timer(1.1).timeout
+	# Wait for throttle window to expire using OS.delay_msec
+	OS.delay_msec(1100)
 	
 	# Emit another event (should succeed)
 	AnalyticsService.emit_event("test.throttled", {"value": 99})
@@ -142,7 +140,6 @@ func test_session_sampling() -> bool:
 	
 	# Enabled = events recorded
 	AnalyticsService.set_enabled(true)
-	await get_tree().process_frame
 	
 	result = AnalyticsService.emit_event("test.session", {"value": 2})
 	
