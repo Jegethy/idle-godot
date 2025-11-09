@@ -4,17 +4,16 @@ extends Node
 ## Stores resources, upgrades, items, player stats, and essence.
 ## This is the single source of truth for game data.
 
-# Signals
+# Signals - only those actually emitted by GameState
 signal resource_changed(resource_id: String, new_amount: float)
-signal upgrade_purchased(upgrade_id: String, new_level: int)
-signal item_acquired(item_id: String, quantity: int)
-signal prestige_performed(new_essence_total: float)
-signal rates_updated()
-signal essence_changed(total_essence: float)
-signal modifiers_recomputed()
-signal meta_upgrade_leveled(id: StringName, new_level: int)
-signal meta_upgrades_respecced(refunded_essence: float)
-signal meta_effects_updated()
+# Note: Other signals moved to the services that actually emit them:
+# - upgrade_purchased -> UpgradeService
+# - prestige_performed -> PrestigeService  
+# - essence_changed -> PrestigeService
+# - rates_updated -> Economy
+# - modifiers_recomputed -> InventorySystem
+# - meta_upgrade_leveled, meta_upgrades_respecced, meta_effects_updated -> MetaUpgradeService
+# - item_acquired -> InventorySystem
 
 # State data
 var resources: Dictionary = {}  # {id: ResourceModel}

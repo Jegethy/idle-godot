@@ -33,7 +33,7 @@ func _wire_economy_signals() -> void:
 		return
 	
 	# Rates updated (throttled)
-	GameState.rates_updated.connect(_on_rates_updated)
+	Economy.rates_updated.connect(_on_rates_updated)
 
 ## Wire UpgradeService signals
 func _wire_upgrade_signals() -> void:
@@ -41,7 +41,7 @@ func _wire_upgrade_signals() -> void:
 		return
 	
 	# Single upgrade purchase
-	GameState.upgrade_purchased.connect(_on_upgrade_purchased)
+	UpgradeService.upgrade_purchased.connect(_on_upgrade_purchased)
 	
 	# Bulk purchase
 	UpgradeService.bulk_purchase_completed.connect(_on_bulk_purchase_completed)

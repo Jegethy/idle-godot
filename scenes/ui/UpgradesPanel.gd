@@ -12,7 +12,7 @@ var tooltip: Control = null
 
 func _ready() -> void:
 	# Connect to signals
-	GameState.upgrade_purchased.connect(_on_upgrade_purchased)
+	UpgradeService.upgrade_purchased.connect(_on_upgrade_purchased)
 	GameState.resource_changed.connect(_on_resource_changed)
 	
 	# Setup multi-buy options

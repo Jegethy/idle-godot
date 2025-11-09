@@ -292,3 +292,190 @@ func delete_all_data() -> bool:
 ## Get total count of events in ring buffer
 func get_event_count() -> int:
 	return ring_buffer.size()
+
+## Read a batch of events from file with cursor tracking
+## Returns {events: Array, next_cursor: Dictionary, has_more: bool}
+func read_batch(cursor: Dictionary, max_events: int, max_bytes: int) -> Dictionary:
+	var events: Array = []
+	var total_bytes := 0
+	var file_path: String = cursor.get("file_path", current_file_path)
+	var line_index: int = cursor.get("line_index", 0)
+	
+	# Check if file exists
+	if not FileAccess.file_exists(file_path):
+		# Try current file
+		if file_path != current_file_path and FileAccess.file_exists(current_file_path):
+			file_path = current_file_path
+			line_index = 0
+		else:
+			return {"events": [], "next_cursor": cursor, "has_more": false}
+	
+	# Open file for reading
+	var file := FileAccess.open(file_path, FileAccess.READ)
+	if not file:
+		push_error("Failed to open event file for reading: %s" % file_path)
+		return {"events": [], "next_cursor": cursor, "has_more": false}
+	
+	# Skip to cursor position
+	var current_line := 0
+	while current_line < line_index and not file.eof_reached():
+		file.get_line()
+		current_line += 1
+	
+	# Read events up to limits
+	while not file.eof_reached() and events.size() < max_events and total_bytes < max_bytes:
+		var line := file.get_line().strip_edges()
+		if line.is_empty():
+			current_line += 1
+			continue
+		
+		# Parse JSON
+		var json := JSON.new()
+		var err := json.parse(line)
+		if err != OK:
+			push_warning("Failed to parse event JSON at line %d" % current_line)
+			current_line += 1
+			continue
+		
+		var event = json.data
+		if not event is Dictionary:
+			current_line += 1
+			continue
+		
+		# Add to batch
+		events.append(event)
+		total_bytes += line.length()
+		current_line += 1
+	
+	file.close()
+	
+	# Build next cursor
+	var next_cursor := {
+		"file_path": file_path,
+		"line_index": current_line
+	}
+	
+	var has_more := not file.eof_reached()
+	
+	return {
+		"events": events,
+		"next_cursor": next_cursor,
+		"has_more": has_more
+	}
+
+## Save cursor to file
+func save_cursor(cursor: Dictionary) -> bool:
+	var cursor_path := telemetry_dir + "upload.cursor"
+	var file := FileAccess.open(cursor_path, FileAccess.WRITE)
+	if not file:
+		push_error("Failed to save cursor file")
+		return false
+	
+	file.store_string(JSON.stringify(cursor, "\t"))
+	file.close()
+	return true
+
+## Load cursor from file
+func load_cursor() -> Dictionary:
+	var cursor_path := telemetry_dir + "upload.cursor"
+	if not FileAccess.file_exists(cursor_path):
+		return {}
+	
+	var file := FileAccess.open(cursor_path, FileAccess.READ)
+	if not file:
+		return {}
+	
+	var json_string := file.get_as_text()
+	file.close()
+	
+	var json := JSON.new()
+	var err := json.parse(json_string)
+	if err != OK:
+		return {}
+	
+	var cursor = json.data
+	if cursor is Dictionary:
+		return cursor
+	
+	return {}
+
+## Mark current file as done (fully uploaded)
+func mark_file_done(file_path: String) -> bool:
+	if not FileAccess.file_exists(file_path):
+		return false
+	
+	# Rename to .done
+	var done_path := file_path + UploadConstants.DONE_FILE_SUFFIX
+	var dir := DirAccess.open(telemetry_dir)
+	if not dir:
+		return false
+	
+	# Remove existing .done file if present
+	if FileAccess.file_exists(done_path):
+		dir.remove(done_path.get_file())
+	
+	# Rename
+	var err := dir.rename(file_path.get_file(), done_path.get_file())
+	return err == OK
+
+## Enforce disk cap by removing oldest .done files
+func enforce_disk_cap(cap_bytes: int) -> void:
+	var dir := DirAccess.open(telemetry_dir)
+	if not dir:
+		return
+	
+	# Collect all files with sizes and timestamps
+	var files: Array = []
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+	
+	while file_name != "":
+		if not dir.current_is_dir():
+			var full_path := telemetry_dir + file_name
+			var size := FileAccess.get_file_as_string(full_path).length()
+			var modified := FileAccess.get_modified_time(full_path)
+			files.append({
+				"name": file_name,
+				"path": full_path,
+				"size": size,
+				"modified": modified,
+				"is_done": file_name.ends_with(UploadConstants.DONE_FILE_SUFFIX)
+			})
+		file_name = dir.get_next()
+	
+	dir.list_dir_end()
+	
+	# Calculate total size
+	var total_size := 0
+	for file_info in files:
+		total_size += file_info["size"]
+	
+	# If under cap, nothing to do
+	if total_size <= cap_bytes:
+		return
+	
+	# Sort by modified time (oldest first)
+	files.sort_custom(func(a, b): return a["modified"] < b["modified"])
+	
+	# Remove oldest .done files first
+	for file_info in files:
+		if total_size <= cap_bytes:
+			break
+		
+		if file_info["is_done"]:
+			var err := dir.remove(file_info["name"])
+			if err == OK:
+				total_size -= file_info["size"]
+				print("Removed old analytics file: %s (freed %d bytes)" % [file_info["name"], file_info["size"]])
+	
+	# If still over cap, remove oldest active files (with warning)
+	if total_size > cap_bytes:
+		for file_info in files:
+			if total_size <= cap_bytes:
+				break
+			
+			if not file_info["is_done"]:
+				var err := dir.remove(file_info["name"])
+				if err == OK:
+					total_size -= file_info["size"]
+					push_warning("Disk cap exceeded: removed active analytics file %s" % file_info["name"])

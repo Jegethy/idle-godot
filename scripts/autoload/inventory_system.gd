@@ -8,6 +8,8 @@ signal item_equipped(slot: String, instance_id: String)
 signal item_unequipped(slot: String, instance_id: String)
 signal inventory_changed()
 signal item_rerolled(instance_id: String, affixes: Array)
+signal item_acquired(item_id: String, quantity: int)  # Emitted when new item type is acquired
+signal modifiers_recomputed()  # Emitted when item stat modifiers are recalculated
 
 # Item database loaded from items.json
 var item_definitions: Dictionary = {}  # {id: Dictionary} - raw item data
@@ -90,7 +92,7 @@ func add_item(item_id_or_def: Variant, quantity: int = 1) -> bool:
 	GameState.items.append(item)
 	inventory_changed.emit()
 	item_added.emit(item.instance_id)
-	GameState.item_acquired.emit(item_id, quantity)
+	item_acquired.emit(item_id, quantity)
 	
 	print("Item added: %s (x%d)" % [item.display_name, item.quantity])
 	return true
@@ -203,7 +205,7 @@ func recompute_all_modifiers() -> void:
 	GameState.combat_modifiers["attack_mult"] = minf(GameState.combat_modifiers["attack_mult"], BalanceConstants.ITEM_ATTACK_MULT_CAP)
 	GameState.idle_multiplier_extra = minf(GameState.idle_multiplier_extra, BalanceConstants.ITEM_IDLE_MULT_CAP)
 	
-	GameState.modifiers_recomputed.emit()
+	modifiers_recomputed.emit()
 	print("Modifiers recomputed: idle_mult=%.2f, attack_add=%.1f, attack_mult=%.2f" % [
 		GameState.idle_multiplier_extra,
 		GameState.combat_modifiers["attack_add"],

@@ -10,7 +10,7 @@ func _ready() -> void:
 	print("UnlockService initialized")
 	# Connect to signals to check unlock conditions
 	GameState.resource_changed.connect(_check_unlock_conditions)
-	GameState.upgrade_purchased.connect(_on_upgrade_purchased)
+	UpgradeService.upgrade_purchased.connect(_on_upgrade_purchased)
 
 ## Check if an upgrade's unlock condition is met
 func is_upgrade_unlocked(upgrade_id: StringName) -> bool:
