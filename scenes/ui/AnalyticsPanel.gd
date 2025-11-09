@@ -105,18 +105,18 @@ func _update_ui() -> void:
 	
 	# Update session ID
 	if session_id_label:
-		var session_id := stats.get("session_id", "N/A")
+		var session_id: String = String(stats.get("session_id", "N/A"))
 		session_id_label.text = "Session: %s" % (session_id if not session_id.is_empty() else "N/A")
 	
 	# Update counters
 	if events_label:
-		events_label.text = "Events: %d" % stats.get("events_recorded", 0)
+		events_label.text = "Events: %d" % int(stats.get("events_recorded", 0))
 	
 	if drops_label:
-		drops_label.text = "Dropped: %d" % stats.get("events_dropped", 0)
+		drops_label.text = "Dropped: %d" % int(stats.get("events_dropped", 0))
 	
 	if events_per_sec_label:
-		var eps := stats.get("events_per_sec", 0.0)
+		var eps: float = float(stats.get("events_per_sec", 0.0))
 		events_per_sec_label.text = "Events/sec: %.2f" % eps
 	
 	# Update event list (only when events change to avoid flickering)

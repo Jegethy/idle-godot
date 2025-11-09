@@ -7,7 +7,7 @@ extends RefCounted
 class_name EventStore
 
 # In-memory ring buffer for recent events
-var ring_buffer: Array = []
+var ring_buffer: Array[Dictionary] = []
 var ring_buffer_max_size: int = AnalyticsConstants.RING_BUFFER_SIZE
 
 # File storage
