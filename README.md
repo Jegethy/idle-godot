@@ -39,6 +39,7 @@ idle-godot/
 - **CombatSystem**: Enemy spawning, combat simulation, reward generation
 - **InventorySystem**: Item management, equip/unequip, stat modifiers
 - **PrestigeService**: Prestige mechanics, essence currency, reset flow
+- **MetaUpgradeService**: Permanent meta progression upgrades, effect aggregation, respec mechanics
 
 ### Data Models
 
@@ -48,6 +49,7 @@ idle-godot/
 - **Enemy**: Combat opponents with HP, attack, defense, and drop tables
 - **PlayerStats**: Combat and idle progression stats
 - **SaveSchema**: Versioned save data structure
+- **MetaUpgrade**: Permanent meta upgrade with prerequisites, cost curves, and effects
 
 ## 🎯 Gameplay Loops
 
@@ -885,6 +887,215 @@ Future improvements:
 - Compression for large save files
 - Anti-cheat measures
 
+## 🌟 Meta Upgrade System (PR9)
+
+The Meta Upgrade System provides permanent progression through Essence-purchased upgrades that persist across prestiges.
+
+### Overview
+
+Meta upgrades are permanent enhancements purchased with Essence (the prestige currency). Unlike regular upgrades that reset on prestige, meta upgrades provide lasting benefits across all game systems.
+
+### Upgrade Categories
+
+Meta upgrades are organized into four categories:
+
+- **Idle** (🌟): Boost idle resource production
+- **Combat** (⚔️): Enhance combat statistics
+- **Loot** (📦): Improve item drop rates
+- **Prestige** (🔮): Increase essence gain and offline benefits
+
+### Cost Curves
+
+Upgrades use different cost scaling formulas:
+
+1. **Exponential**: `cost(level) = base_cost × growth^level`
+   - Example: `base_cost=10, growth=1.18` → costs: 10, 11.8, 13.9, ...
+   
+2. **Linear**: `cost(level) = base_cost × (1 + 0.25 × level)`
+   - Example: `base_cost=35` → costs: 35, 43.75, 52.5, ...
+   
+3. **Polynomial**: `cost(level) = coeffs[0] + coeffs[1] × level`
+   - Example: `coeffs=[40, 6]` → costs: 40, 46, 52, ...
+
+### Effect Types
+
+Meta upgrades provide various effect types that stack additively:
+
+| Effect Type | Description | Example Upgrade |
+|------------|-------------|----------------|
+| `idle_rate_multiplier` | Multiplier to idle production | Idle Core Amplifier |
+| `idle_rate_add` | Flat addition to idle rate | Idle Production Boost |
+| `combat_attack_mult` | Multiplier to attack | Combat Edge |
+| `combat_defense_mult` | Multiplier to defense | Defensive Training |
+| `combat_crit_chance_add` | Additive crit chance | Critical Insight |
+| `combat_crit_multiplier_add` | Additive crit damage | Critical Power |
+| `combat_speed_add` | Additive combat speed | Combat Agility |
+| `drop_rate_multiplier` | Multiplier to drop chances | Loot Enrichment |
+| `essence_gain_multiplier` | Multiplier to essence gain | Essence Mastery |
+| `offline_gain_multiplier` | Multiplier to offline gains | Offline Optimizer |
+
+### Prerequisite System
+
+Upgrades can have prerequisites that must be met before purchasing:
+
+**Prerequisite Format**: `"upgrade_id:level"`
+
+**Example**: 
+```json
+{
+  "id": "combat_edge",
+  "prerequisites": ["idle_core:5"],
+  "requires_total_prestiges": 2
+}
+```
+
+This upgrade requires:
+- `idle_core` at level 5 or higher
+- At least 2 total prestiges completed
+
+### Effect Stacking
+
+Meta upgrade effects are aggregated and applied to game systems:
+
+**Idle Production**:
+```gdscript
+rate = (base_rate + idle_rate_add) × (1 + idle_rate_multiplier) × essence_mult
+```
+
+**Combat Stats**:
+```gdscript
+attack = base_attack × essence_bonus × (1 + combat_attack_mult)
+crit_chance = base_crit_chance + combat_crit_chance_add
+```
+
+**Drop Rates**:
+```gdscript
+adjusted_chance = base_chance × (1 + drop_rate_multiplier)
+```
+
+**Essence Gain**:
+```gdscript
+essence = base_essence × (1 + essence_gain_multiplier)
+```
+
+**Offline Gains**:
+```gdscript
+offline_income = normal_income × (1 + offline_gain_multiplier)
+```
+
+### Respec Mechanics
+
+Players can reset all meta upgrades with the following rules:
+
+- **Refund Rate**: 60% of total essence spent (configurable via `META_REFUND_RATE`)
+- **Cooldown**: 1 hour between respecs (configurable via `META_RESPEC_COOLDOWN_SEC`)
+- **Effect**: All upgrade levels reset to 0, effects cleared
+
+**Example**:
+- Spent 100 essence on upgrades
+- Respec returns 60 essence
+- Must wait 1 hour before next respec
+
+### Projection & ROI
+
+The system includes tools for calculating return on investment:
+
+**Payback Time** (for idle upgrades):
+```gdscript
+payback_seconds = upgrade_cost / additional_production_per_second
+```
+
+**ROI Scoring**:
+Different effect types use different ROI formulas to balance their value:
+- Idle multipliers: `(effect × current_rate) / cost`
+- Idle additive: `effect / cost`
+- Essence multipliers: `(effect × 10.0) / cost` (higher value)
+- Combat multipliers: `(effect × 5.0) / cost` (moderate value)
+
+### Save Schema
+
+Meta upgrades are saved in version 6 schema:
+
+```json
+{
+  "version": 6,
+  "meta_upgrades": {
+    "idle_core": 10,
+    "combat_edge": 5
+  },
+  "respec_tokens": 2,
+  "last_respec_time": 1234567890
+}
+```
+
+**Migration**: v5 saves automatically migrate to v6 with empty meta upgrade state.
+
+### Configuration Files
+
+**data/meta_upgrades.json**: Defines all available meta upgrades
+```json
+{
+  "id": "idle_core",
+  "name": "Idle Core Amplifier",
+  "category": "idle",
+  "max_level": 50,
+  "base_cost": 10,
+  "cost_curve": "EXPONENTIAL",
+  "growth": 1.18,
+  "effect_type": "idle_rate_multiplier",
+  "effect_per_level": 0.02,
+  "prerequisites": [],
+  "requires_total_prestiges": 0
+}
+```
+
+### Balance Constants
+
+Located in `scripts/config/BalanceConstants.gd`:
+
+```gdscript
+const META_REFUND_RATE: float = 0.6          # 60% refund on respec
+const META_RESPEC_COOLDOWN_SEC: int = 3600   # 1 hour cooldown
+const META_ROI_MIN_DELTA: float = 0.0001     # Minimum delta for calculations
+```
+
+### Usage Example
+
+```gdscript
+# Check if can level up
+if MetaUpgradeService.can_level("idle_core"):
+    # Level up the upgrade
+    MetaUpgradeService.level_up("idle_core")
+
+# Get current effect
+var idle_mult = GameState.meta_effects_cache.get("idle_rate_multiplier", 0.0)
+
+# Calculate ROI for all upgrades
+var current_rate = Economy.get_per_second_rate("gold")
+var ranked = MetaProjection.rank_upgrades_by_roi(
+    MetaUpgradeService.definitions.keys(),
+    current_rate,
+    MetaUpgradeService
+)
+
+# Respec if needed
+var result = MetaUpgradeService.respec_all()
+if result.success:
+    print("Refunded %.1f essence" % result.refunded)
+```
+
+### Testing
+
+Comprehensive test suite validates:
+- Cost curve calculations (`test_meta_cost_curves.gd`)
+- Prerequisite gating (`test_meta_prereq_gating.gd`)
+- Effect aggregation (`test_meta_effect_aggregation.gd`)
+- Respec refund mechanics (`test_respec_refund.gd`)
+- Payback estimation (`test_payback_estimate.gd`)
+- Save migration v5→v6 (`test_migration_v5_to_v6.gd`)
+- ROI sorting (`test_roi_sorting.gd`)
+- Essence gain multiplier integration (`test_essence_gain_multiplier_integration.gd`)
+
 ## 📝 License
 
 This project is open source and available for educational purposes.
@@ -899,4 +1110,4 @@ This is a learning project following incremental development practices:
 
 ---
 
-**Current Status**: PR1 - Project structure scaffolded and ready for core implementation.
+**Current Status**: PR9 - Meta Upgrade System implemented with full progression mechanics.
