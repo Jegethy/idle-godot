@@ -63,7 +63,7 @@ func test_essence_gain_with_multiplier() -> bool:
 	MetaUpgradeService.sync_levels_from_game_state()
 	
 	# Verify meta effect cached
-	var mult := GameState.meta_effects_cache.get("essence_gain_multiplier", 0.0)
+	var mult: float = float(GameState.meta_effects_cache.get(&"essence_gain_multiplier", 0.0))
 	if not is_equal_approx(mult, 0.1):
 		print("  ✗ Expected essence_gain_multiplier 0.1, got %.3f" % mult)
 		return false
@@ -95,7 +95,7 @@ func test_multiple_levels_stack() -> bool:
 	MetaUpgradeService.sync_levels_from_game_state()
 	
 	# Verify meta effect cached
-	var mult := GameState.meta_effects_cache.get("essence_gain_multiplier", 0.0)
+	var mult: float = float(GameState.meta_effects_cache.get(&"essence_gain_multiplier", 0.0))
 	if not is_equal_approx(mult, 0.2):
 		print("  ✗ Expected essence_gain_multiplier 0.2, got %.3f" % mult)
 		return false

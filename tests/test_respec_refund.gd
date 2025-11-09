@@ -102,7 +102,7 @@ func test_respec_resets_levels() -> bool:
 		return false
 	
 	# Verify effect cache is cleared
-	var idle_mult := GameState.meta_effects_cache.get("idle_rate_multiplier", 0.0)
+	var idle_mult: float = float(GameState.meta_effects_cache.get(&"idle_rate_multiplier", 0.0))
 	if not is_equal_approx(idle_mult, 0.0):
 		print("  ✗ Effect cache should be cleared after respec")
 		return false

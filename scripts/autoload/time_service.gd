@@ -42,7 +42,7 @@ func apply_offline_progression(now: float, economy: Node, game_state: Node) -> v
 	delta_seconds = clamp(delta_seconds, 0, Constants.OFFLINE_HARD_CAP_SEC)
 	
 	# Apply meta upgrade offline gain multiplier
-	var offline_mult := 1.0 + game_state.meta_effects_cache.get("offline_gain_multiplier", 0.0)
+	var offline_mult: float = 1.0 + float(game_state.meta_effects_cache.get(&"offline_gain_multiplier", 0.0))
 	
 	if delta_seconds > 0:
 		# Recompute rates using current upgrades (already loaded)
