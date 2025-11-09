@@ -1,0 +1,120 @@
+[gd_scene load_steps=2 format=3 uid="uid://analytics_panel_001"]
+
+[ext_resource type="Script" path="res://scenes/ui/AnalyticsPanel.gd" id="1_analytics"]
+
+[node name="AnalyticsPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(400, 300)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_analytics")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Analytics & Telemetry"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ControlsContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="EnabledCheckBox" type="CheckBox" parent="MarginContainer/VBoxContainer/ControlsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Enable Analytics (Opt-in)"
+
+[node name="SessionContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer/ControlsContainer"]
+layout_mode = 2
+
+[node name="SessionIdLabel" type="Label" parent="MarginContainer/VBoxContainer/ControlsContainer/SessionContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Session: N/A"
+
+[node name="CopySessionButton" type="Button" parent="MarginContainer/VBoxContainer/ControlsContainer/SessionContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Copy ID"
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="StatsContainer" type="GridContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+columns = 3
+
+[node name="EventsLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Events: 0"
+
+[node name="DropsLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Dropped: 0"
+
+[node name="EventsPerSecLabel" type="Label" parent="MarginContainer/VBoxContainer/StatsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Events/sec: 0.00"
+
+[node name="HSeparator3" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="EventsLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Recent Events:"
+
+[node name="EventList" type="ItemList" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HSeparator4" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="ExportNDJSONButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Export NDJSON"
+
+[node name="ExportCSVButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Export CSV"
+
+[node name="ImportButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Import"
+
+[node name="DeleteAllButton" type="Button" parent="MarginContainer/VBoxContainer/ButtonsContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Delete All"

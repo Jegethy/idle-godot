@@ -40,6 +40,7 @@ idle-godot/
 - **InventorySystem**: Item management, equip/unequip, stat modifiers
 - **PrestigeService**: Prestige mechanics, essence currency, reset flow
 - **MetaUpgradeService**: Permanent meta progression upgrades, effect aggregation, respec mechanics
+- **AnalyticsService**: Opt-in analytics and telemetry with privacy-first design
 
 ### Data Models
 
@@ -1096,6 +1097,210 @@ Comprehensive test suite validates:
 - ROI sorting (`test_roi_sorting.gd`)
 - Essence gain multiplier integration (`test_essence_gain_multiplier_integration.gd`)
 
+## 📊 Analytics & Telemetry (PR10)
+
+The Analytics & Telemetry Layer provides opt-in gameplay event tracking with privacy-first design.
+
+### Privacy Principles
+
+The analytics system is built with privacy as the top priority:
+
+- **Opt-in Only**: Analytics is **OFF by default** and requires explicit user consent
+- **No PII**: Never captures usernames, device identifiers, IPs, platform IDs, or file paths
+- **Local Storage Only**: All data stored in `user://telemetry/` with no network transmission by default
+- **Random Session IDs**: Each session uses a random UUID v4 identifier
+- **Data Minimization**: Event schemas are constrained; only game metrics are captured
+- **User Control**: "Delete all analytics data" available in UI at any time
+- **Redaction**: User-generated strings are automatically redacted; only numeric/category data logged
+
+### Architecture
+
+#### Core Components
+
+- **AnalyticsService** (autoload): Session lifecycle, event emission, sampling/throttling, validation
+- **EventStore**: Buffered NDJSON file storage with in-memory ring buffer for UI
+- **Transport**: Pluggable backend interface (default: NoopTransport for local-only storage)
+- **Anonymizer**: Data redaction and validation helpers
+- **AnalyticsWiring**: Connects game signals to analytics events
+
+#### Event Structure
+
+Each event follows a canonical schema:
+
+```json
+{
+  "ts": 1699564800.123,
+  "session_id": "550e8400-e29b-41d4-a716-446655440000",
+  "event": "upgrade.purchased",
+  "ver": 1,
+  "seq": 42,
+  "data": {
+    "id": "gold_boost",
+    "level": 10,
+    "cost": 1234.5
+  },
+  "meta": {
+    "wave": 5,
+    "gold": 10000.0,
+    "essence": 25.0,
+    "fps": 60.0
+  }
+}
+```
+
+### Event Catalog
+
+The system captures the following event types:
+
+**Economy Events**
+- `economy.rates_updated`: Resource production rates recalculated (throttled: 1s)
+- `economy.resource_changed`: Resource amount changed (throttled: 1s)
+
+**Upgrade Events**
+- `upgrade.purchased`: Single upgrade level purchased
+- `upgrades.bulk_purchased`: Multiple upgrade levels purchased at once
+
+**Prestige Events**
+- `prestige.performed`: Player performed prestige reset
+
+**Combat Events**
+- `combat.started`: Combat wave started
+- `combat.finished`: Combat wave completed (victory/defeat, rewards)
+
+**Inventory Events**
+- `inventory.item_acquired`: Item added to inventory
+- `inventory.item_equipped`: Item equipped in slot
+
+**Meta Upgrade Events**
+- `meta.level_up`: Meta upgrade leveled up with essence
+
+**Session Events**
+- `session.start`: Analytics session started
+- `session.end`: Analytics session ended with duration
+
+### Configuration
+
+Settings are stored in `user://data/analytics_settings.json`:
+
+```json
+{
+  "enabled": false,
+  "project_id": "idle-incremental-godot",
+  "session_sample_rate": 1.0,
+  "event_sample_overrides": {},
+  "throttle": {
+    "economy.rates_updated": 1.0,
+    "economy.resource_changed": 1.0
+  },
+  "ring_buffer_size": 500,
+  "file_rotation_daily": true
+}
+```
+
+### Usage
+
+#### Enable Analytics
+
+Analytics must be explicitly enabled by the user:
+
+```gdscript
+# Enable analytics (creates new session)
+AnalyticsService.set_enabled(true)
+
+# Disable analytics (ends current session)
+AnalyticsService.set_enabled(false)
+```
+
+#### Emit Custom Events
+
+```gdscript
+# Emit an event
+AnalyticsService.emit_event("custom.event", {
+  "value": 123,
+  "category": "test"
+})
+
+# Check if analytics is enabled
+if AnalyticsService.enabled:
+  print("Analytics active, session: %s" % AnalyticsService.session_id)
+```
+
+#### Export/Import Data
+
+```gdscript
+# Export to NDJSON
+AnalyticsService.export_ndjson("user://exports/analytics.ndjson")
+
+# Export to CSV (flattened columns)
+AnalyticsService.export_csv("user://exports/analytics.csv")
+
+# Import from NDJSON
+var result = AnalyticsService.import_ndjson("user://imports/data.ndjson")
+print("Imported: %d events" % result.imported)
+
+# Delete all analytics data
+AnalyticsService.delete_all_data()
+```
+
+#### Sampling & Throttling
+
+```gdscript
+# Set event-specific sampling rate (0.0 = drop all, 1.0 = keep all)
+AnalyticsService.event_sample_overrides["test.event"] = 0.5  # 50% sampling
+
+# Set throttle window (seconds)
+AnalyticsService.throttle_windows["frequent.event"] = 2.0  # Max once per 2s
+```
+
+### UI Panel
+
+The `AnalyticsPanel` provides:
+- **Enable/Disable** checkbox for opt-in control
+- **Session ID** display with copy button
+- **Statistics**: Event count, drops, events/sec
+- **Recent Events** list with highlights
+- **Export** buttons for NDJSON and CSV formats
+- **Import** button for data recovery
+- **Delete All** button for complete data removal
+
+### Data Redaction
+
+The Anonymizer ensures no PII is captured:
+
+- **Whitelisted Fields**: Only `id`, `slot`, `rarity`, `event`, etc. allowed as strings
+- **Numeric Clamping**: Values clamped to [-1e15, 1e15]; NaN/Inf → null
+- **Path Detection**: File paths automatically redacted
+- **Email Detection**: Email-like patterns redacted
+- **Length Limits**: Strings > 100 chars considered potential PII and redacted
+
+### Performance
+
+- **Target**: ≤ 0.3ms per event emission (average)
+- **Ring Buffer**: Configurable size (default: 500 events) for memory control
+- **Batch Flushing**: Events written to disk in batches to reduce I/O
+- **Throttling**: High-frequency events (rates_updated, resource_changed) throttled to prevent spam
+
+### Testing
+
+Comprehensive test suite validates:
+- Opt-in behavior (`test_analytics_opt_in.gd`)
+- Event emission and storage (`test_event_emit_and_store.gd`)
+- Throttling and sampling (`test_throttle_and_sampling.gd`)
+- Redaction and validation (`test_redaction_and_validation.gd`)
+- Export to NDJSON/CSV (`test_export_ndjson_csv.gd`)
+- Import from NDJSON (`test_import_ndjson.gd`)
+- Session lifecycle (`test_session_lifecycle.gd`)
+- Performance with 10k+ events (`test_perf_batch_emit.gd`)
+- Signal wiring (`test_signal_wiring_smoke.gd`)
+
+### File Storage
+
+Events are stored in:
+- **Location**: `user://telemetry/`
+- **Format**: NDJSON (newline-delimited JSON)
+- **Rotation**: Daily by default (files named `events-YYYYMMDD.ndjson`)
+- **Atomic Writes**: Temp file + rename for crash safety
+
 ## 📝 License
 
 This project is open source and available for educational purposes.
@@ -1110,4 +1315,4 @@ This is a learning project following incremental development practices:
 
 ---
 
-**Current Status**: PR9 - Meta Upgrade System implemented with full progression mechanics.
+**Current Status**: PR10 - Analytics & Telemetry Layer implemented with privacy-first design.
