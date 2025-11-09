@@ -50,7 +50,8 @@ func test_no_events_when_disabled() -> bool:
 		return false
 	
 	# Check that no events were recorded
-	var event_count := AnalyticsService.get_session_stats().get("events_recorded", 0)
+	var stats: Dictionary = AnalyticsService.get_session_stats()
+	var event_count: int = int(stats.get("events_recorded", 0))
 	if event_count > 0:
 		print("  ✗ Event count should be 0 when disabled, got %d" % event_count)
 		return false
@@ -75,7 +76,8 @@ func test_events_when_enabled() -> bool:
 		return false
 	
 	# Check that event was recorded
-	var event_count := AnalyticsService.get_session_stats().get("events_recorded", 0)
+	var stats_2: Dictionary = AnalyticsService.get_session_stats()
+	var event_count: int = int(stats_2.get("events_recorded", 0))
 	if event_count == 0:
 		print("  ✗ Event count should be > 0 when enabled")
 		return false
