@@ -20,6 +20,7 @@ var ring_buffer_size: int = AnalyticsConstants.RING_BUFFER_SIZE
 # Components
 var event_store: EventStore = null
 var transport: Transport = null
+var uploader: AnalyticsUploader = null
 
 # Session state
 var session_start_time: float = 0.0
@@ -38,6 +39,8 @@ func _ready() -> void:
 	# Initialize components
 	event_store = EventStore.new()
 	transport = NoopTransport.new()
+	uploader = AnalyticsUploader.new()
+	add_child(uploader)
 	
 	# Load settings
 	_load_settings()
@@ -45,6 +48,9 @@ func _ready() -> void:
 	# Start session if enabled
 	if enabled:
 		_start_session()
+	
+	# Initialize uploader with settings
+	uploader.initialize(_get_upload_settings(), event_store, project_id, session_id)
 	
 	print("AnalyticsService initialized (enabled: %s)" % enabled)
 
@@ -348,3 +354,66 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_PREDELETE:
 		if enabled:
 			_end_session()
+
+## Get upload settings as a dictionary for uploader
+func _get_upload_settings() -> Dictionary:
+	return {
+		"cloud_upload_enabled": false,  # Will be loaded from file
+		"endpoint_url": "",
+		"api_key": "",
+		"api_secret": "",
+		"upload_interval_sec": UploadConstants.DEFAULT_UPLOAD_INTERVAL_SEC,
+		"max_batch_events": UploadConstants.DEFAULT_MAX_BATCH_EVENTS,
+		"max_batch_bytes": UploadConstants.DEFAULT_MAX_BATCH_BYTES,
+		"disk_cap_bytes": UploadConstants.DEFAULT_DISK_CAP_BYTES,
+		"backoff_base_sec": UploadConstants.BACKOFF_BASE_SEC,
+		"backoff_factor": UploadConstants.BACKOFF_FACTOR,
+		"backoff_max_sec": UploadConstants.BACKOFF_MAX_SEC,
+		"backoff_jitter_ratio": UploadConstants.BACKOFF_JITTER_RATIO
+	}
+
+## Load upload settings from file (called after _load_settings)
+func load_upload_settings() -> Dictionary:
+	var settings_path := AnalyticsConstants.SETTINGS_FILE
+	
+	if not FileAccess.file_exists(settings_path):
+		return _get_upload_settings()
+	
+	var file := FileAccess.open(settings_path, FileAccess.READ)
+	if not file:
+		return _get_upload_settings()
+	
+	var json_string := file.get_as_text()
+	file.close()
+	
+	var json := JSON.new()
+	var err := json.parse(json_string)
+	if err != OK:
+		return _get_upload_settings()
+	
+	var settings = json.data
+	if not settings is Dictionary:
+		return _get_upload_settings()
+	
+	# Extract upload-related settings
+	var upload_settings := _get_upload_settings()
+	upload_settings["cloud_upload_enabled"] = settings.get("cloud_upload_enabled", false)
+	upload_settings["endpoint_url"] = settings.get("endpoint_url", "")
+	upload_settings["api_key"] = settings.get("api_key", "")
+	upload_settings["api_secret"] = settings.get("api_secret", "")
+	upload_settings["upload_interval_sec"] = settings.get("upload_interval_sec", UploadConstants.DEFAULT_UPLOAD_INTERVAL_SEC)
+	upload_settings["max_batch_events"] = settings.get("max_batch_events", UploadConstants.DEFAULT_MAX_BATCH_EVENTS)
+	upload_settings["max_batch_bytes"] = settings.get("max_batch_bytes", UploadConstants.DEFAULT_MAX_BATCH_BYTES)
+	upload_settings["disk_cap_bytes"] = settings.get("disk_cap_bytes", UploadConstants.DEFAULT_DISK_CAP_BYTES)
+	upload_settings["backoff_base_sec"] = settings.get("backoff_base_sec", UploadConstants.BACKOFF_BASE_SEC)
+	upload_settings["backoff_factor"] = settings.get("backoff_factor", UploadConstants.BACKOFF_FACTOR)
+	upload_settings["backoff_max_sec"] = settings.get("backoff_max_sec", UploadConstants.BACKOFF_MAX_SEC)
+	upload_settings["backoff_jitter_ratio"] = settings.get("backoff_jitter_ratio", UploadConstants.BACKOFF_JITTER_RATIO)
+	
+	return upload_settings
+
+## Reload uploader settings and reinitialize
+func reload_uploader() -> void:
+	if uploader:
+		var upload_settings := load_upload_settings()
+		uploader.initialize(upload_settings, event_store, project_id, session_id)

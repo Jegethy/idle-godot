@@ -8,5 +8,17 @@
 		"economy.resource_changed": 1.0
 	},
 	"ring_buffer_size": 500,
-	"file_rotation_daily": true
+	"file_rotation_daily": true,
+	"cloud_upload_enabled": false,
+	"endpoint_url": "",
+	"api_key": "",
+	"api_secret": "",
+	"upload_interval_sec": 60,
+	"max_batch_events": 5000,
+	"max_batch_bytes": 1048576,
+	"disk_cap_bytes": 52428800,
+	"backoff_base_sec": 1.0,
+	"backoff_factor": 2.0,
+	"backoff_max_sec": 300.0,
+	"backoff_jitter_ratio": 0.2
 }
