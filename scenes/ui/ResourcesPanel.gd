@@ -5,7 +5,7 @@ extends PanelContainer
 
 @onready var resources_list: VBoxContainer = %ResourcesList
 
-var resource_labels: Dictionary = {}  # {resource_id: {amount_label: Label, rate_label: Label}}
+var resource_labels: Dictionary[String, Dictionary] = {}  # {resource_id: {amount_label: Label, rate_label: Label}}
 
 func _ready() -> void:
 	# Connect to signals
@@ -73,7 +73,7 @@ func _update_resource_display(resource_id: String) -> void:
 		return
 	
 	var resource: ResourceModel = GameState.resources[resource_id]
-	var labels := resource_labels[resource_id]
+	var labels: Dictionary = resource_labels[resource_id]
 	
 	# Format amount
 	labels["amount_label"].text = NumberFormatter.format_short(resource.amount)

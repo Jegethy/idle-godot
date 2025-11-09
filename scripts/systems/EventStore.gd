@@ -107,7 +107,7 @@ func get_recent_events(count: int = -1) -> Array:
 	if count < 0 or count > ring_buffer.size():
 		return ring_buffer.duplicate()
 	
-	var start_idx := max(0, ring_buffer.size() - count)
+	var start_idx: int = max(0, ring_buffer.size() - count)
 	return ring_buffer.slice(start_idx)
 
 ## Export events to NDJSON file

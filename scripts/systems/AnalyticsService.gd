@@ -280,7 +280,7 @@ func _should_sample_session() -> bool:
 
 ## Check if specific event type should be sampled
 func _should_sample_event(event_name: String) -> bool:
-	var sample_rate := event_sample_overrides.get(event_name, 1.0)
+	var sample_rate: float = float(event_sample_overrides.get(event_name, 1.0))
 	return sample_rate >= 1.0 or randf() < sample_rate
 
 ## Check if event should be emitted based on throttle rules
@@ -288,9 +288,9 @@ func _should_emit_throttled(event_name: String) -> bool:
 	if not throttle_windows.has(event_name):
 		return true
 	
-	var throttle_window := throttle_windows[event_name]
-	var last_time := last_event_times.get(event_name, 0.0)
-	var current_time := Time.get_unix_time_from_system()
+	var throttle_window: float = float(throttle_windows[event_name])
+	var last_time: float = float(last_event_times.get(event_name, 0.0))
+	var current_time: float = Time.get_unix_time_from_system()
 	
 	return (current_time - last_time) >= throttle_window
 

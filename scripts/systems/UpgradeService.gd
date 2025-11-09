@@ -110,7 +110,7 @@ func compute_max_purchase(upgrade_id: StringName) -> int:
 	if not upgrade or not upgrade.unlocked:
 		return 0
 	
-	var available_gold := GameState.resources["gold"].amount if GameState.resources.has("gold") else 0.0
+	var available_gold: float = GameState.resources["gold"].amount if GameState.resources.has("gold") else 0.0
 	
 	if available_gold <= 0.0:
 		return 0

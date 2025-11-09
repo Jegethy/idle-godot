@@ -54,7 +54,7 @@ func _setup_upgrades_ui() -> void:
 			_create_upgrade_row(upgrade)
 
 func _create_upgrade_row(upgrade: UpgradeModel) -> void:
-	var row := PanelContainer.new()
+	var row: PanelContainer = PanelContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
 	var margin := MarginContainer.new()
@@ -112,7 +112,7 @@ func _update_upgrade_display(upgrade_id: String) -> void:
 		return
 	
 	var upgrade: UpgradeModel = GameState.upgrades[upgrade_id]
-	var row := upgrade_rows[upgrade_id]
+	var row: Dictionary = upgrade_rows[upgrade_id]
 	
 	# Determine purchase quantity
 	var quantity := current_multi_buy
@@ -158,7 +158,7 @@ func _flash_upgrade_row(upgrade_id: String) -> void:
 	if not upgrade_rows.has(upgrade_id):
 		return
 	
-	var row := upgrade_rows[upgrade_id]["container"] as PanelContainer
+	var row: PanelContainer = upgrade_rows[upgrade_id]["container"] as PanelContainer
 	
 	# Create a tween to flash the background
 	var tween := create_tween()
