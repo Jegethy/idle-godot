@@ -110,23 +110,23 @@ var idle_delta: float = comparison.get("idle_delta_pct", 0.0)
 var idle_text := NumberFormatter.format_delta(100.0, 100.0 + idle_delta, 1)
 lines.append("Idle Rate: %s" % idle_text)
 
-# Attack change
-var attack_delta: float = comparison.get("attack_delta", 0.0)
-if abs(attack_delta) > 0.1:
-var sign := "+" if attack_delta > 0 else ""
-lines.append("Attack: %s%.1f" % [sign, attack_delta])
-
-# Defense change
-var defense_delta: float = comparison.get("defense_delta", 0.0)
-if abs(defense_delta) > 0.1:
-var sign := "+" if defense_delta > 0 else ""
-lines.append("Defense: %s%.1f" % [sign, defense_delta])
-
-# Crit chance change
-var crit_delta: float = comparison.get("crit_chance_delta", 0.0)
-if abs(crit_delta) > 0.001:
-var sign := "+" if crit_delta > 0 else ""
-lines.append("Crit Chance: %s%s" % [sign, NumberFormatter.format_percentage(crit_delta)])
+	# Attack change
+	var attack_delta: float = comparison.get("attack_delta", 0.0)
+	if abs(attack_delta) > 0.1:
+		var sign_str := "+" if attack_delta > 0 else ""
+		lines.append("Attack: %s%.1f" % [sign_str, attack_delta])
+	
+	# Defense change
+	var defense_delta: float = comparison.get("defense_delta", 0.0)
+	if abs(defense_delta) > 0.1:
+		var sign_str := "+" if defense_delta > 0 else ""
+		lines.append("Defense: %s%.1f" % [sign_str, defense_delta])
+	
+	# Crit chance change
+	var crit_delta: float = comparison.get("crit_chance_delta", 0.0)
+	if abs(crit_delta) > 0.001:
+		var sign_str := "+" if crit_delta > 0 else ""
+		lines.append("Crit Chance: %s%s" % [sign_str, NumberFormatter.format_percentage(crit_delta)])
 
 # Recommendation
 if comparison.get("is_improvement", false):
