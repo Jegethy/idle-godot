@@ -16,7 +16,7 @@ func _ready() -> void:
 	all_passed = test_no_events_when_disabled() and all_passed
 	
 	# Test 3: Events recorded when enabled
-	all_passed = test_events_when_enabled() and all_passed
+	all_passed = await test_events_when_enabled() and all_passed
 	
 	print("\n=== Test Results ===")
 	if all_passed:

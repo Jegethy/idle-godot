@@ -95,20 +95,20 @@ static func compare_items(candidate: ItemModel, slot: String) -> Dictionary:
 
 ## Get formatted comparison text
 static func get_comparison_text(comparison: Dictionary) -> String:
-if not comparison.get("can_compare", false):
-return "Cannot compare items"
+	if not comparison.get("can_compare", false):
+		return "Cannot compare items"
+	
+	var lines: Array[String] = []
 
-var lines: Array[String] = []
-
-# DPS change
-var dps_delta: float = comparison.get("dps_delta_pct", 0.0)
-var dps_text := NumberFormatter.format_delta(100.0, 100.0 + dps_delta, 1)
-lines.append("Combat DPS: %s" % dps_text)
-
-# Idle rate change
-var idle_delta: float = comparison.get("idle_delta_pct", 0.0)
-var idle_text := NumberFormatter.format_delta(100.0, 100.0 + idle_delta, 1)
-lines.append("Idle Rate: %s" % idle_text)
+	# DPS change
+	var dps_delta: float = comparison.get("dps_delta_pct", 0.0)
+	var dps_text := NumberFormatter.format_delta(100.0, 100.0 + dps_delta, 1)
+	lines.append("Combat DPS: %s" % dps_text)
+	
+	# Idle rate change
+	var idle_delta: float = comparison.get("idle_delta_pct", 0.0)
+	var idle_text := NumberFormatter.format_delta(100.0, 100.0 + idle_delta, 1)
+	lines.append("Idle Rate: %s" % idle_text)
 
 	# Attack change
 	var attack_delta: float = comparison.get("attack_delta", 0.0)
@@ -127,10 +127,10 @@ lines.append("Idle Rate: %s" % idle_text)
 	if abs(crit_delta) > 0.001:
 		var sign_str := "+" if crit_delta > 0 else ""
 		lines.append("Crit Chance: %s%s" % [sign_str, NumberFormatter.format_percentage(crit_delta)])
-
-# Recommendation
-if comparison.get("is_improvement", false):
-lines.append("")
-lines.append("✓ Recommended upgrade")
-
-return "\n".join(lines)
+	
+	# Recommendation
+	if comparison.get("is_improvement", false):
+		lines.append("")
+		lines.append("✓ Recommended upgrade")
+	
+	return "\n".join(lines)

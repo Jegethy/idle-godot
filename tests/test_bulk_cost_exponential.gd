@@ -65,8 +65,8 @@ func test_multiple_purchases() -> bool:
 	# Calculate iteratively for comparison
 	var iterative_cost := 0.0
 	for i in range(10):
-		var temp_level := i
-		var cost := upgrade.base_cost * pow(upgrade.cost_growth_factor, temp_level)
+		var temp_level: int = i
+		var cost: float = upgrade.base_cost * pow(upgrade.cost_growth_factor, temp_level)
 		iterative_cost += cost
 	
 	var difference := abs(bulk_cost - iterative_cost)
@@ -100,8 +100,8 @@ func test_formula_accuracy() -> bool:
 		# Iterative cost
 		var iterative_cost := 0.0
 		for i in range(scenario["quantity"]):
-			var temp_level := scenario["level"] + i
-			var cost := scenario["base"] * pow(scenario["growth"], temp_level)
+			var temp_level: int = int(scenario["level"]) + i
+			var cost: float = float(scenario["base"]) * pow(float(scenario["growth"]), temp_level)
 			iterative_cost += cost
 		
 		var difference := abs(bulk_cost - iterative_cost)

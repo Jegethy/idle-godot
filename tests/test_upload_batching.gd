@@ -80,8 +80,9 @@ func test_max_events_limit() -> bool:
 		return false
 	
 	# Cursor should advance
-	if next_cursor["line_index"] != 25:
-		push_error("Cursor should be at line 25, got %d" % next_cursor["line_index"])
+	var line_index: int = int(next_cursor.get("line_index", 0))
+	if line_index != 25:
+		push_error("Cursor should be at line 25, got %d" % line_index)
 		DirAccess.remove_absolute(temp_file_path)
 		return false
 	

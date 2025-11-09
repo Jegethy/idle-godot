@@ -14,7 +14,7 @@ func _ready() -> void:
 	var all_passed := true
 	
 	# Test 1: Batch emit performance
-	all_passed = test_batch_emit_performance() and all_passed
+	all_passed = await test_batch_emit_performance() and all_passed
 	
 	# Test 2: Memory usage remains reasonable
 	all_passed = test_memory_usage() and all_passed
@@ -112,8 +112,9 @@ func test_memory_usage() -> bool:
 		return false
 	
 	# Oldest events should be dropped
-	var first_event := store.ring_buffer[0]
-	var first_index: Dictionary = first_event.get("data", {}).get("index", -1)
+	var first_event: Dictionary = store.ring_buffer[0]
+	var first_event_data: Dictionary = first_event.get("data", {})
+	var first_index: int = int(first_event_data.get("index", -1))
 	
 	# First event should be around index 1500 (2000 - 500)
 	if first_index < 1400:  # Allow some tolerance

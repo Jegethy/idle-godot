@@ -10,13 +10,13 @@ func _ready() -> void:
 	var all_passed := true
 	
 	# Test 1: Session starts when enabled
-	all_passed = test_session_start() and all_passed
+	all_passed = await test_session_start() and all_passed
 	
 	# Test 2: Session ends when disabled
-	all_passed = test_session_end() and all_passed
+	all_passed = await test_session_end() and all_passed
 	
 	# Test 3: Session duration is positive
-	all_passed = test_session_duration() and all_passed
+	all_passed = await test_session_duration() and all_passed
 	
 	print("\n=== Test Results ===")
 	if all_passed:
