@@ -1,0 +1,155 @@
+{
+	"schema_version": 1,
+	"description": "Analytics event schemas for idle-incremental-godot",
+	"privacy_policy": {
+		"opt_in": true,
+		"default_enabled": false,
+		"no_pii": true,
+		"local_storage_only": true,
+		"user_controlled_deletion": true
+	},
+	"event_structure": {
+		"ts": "Unix timestamp (float)",
+		"session_id": "Random UUID v4 session identifier (string)",
+		"event": "Event name in category.action format (string)",
+		"ver": "Schema version (int)",
+		"seq": "Sequence number within session (int)",
+		"data": "Event-specific payload (Dictionary)",
+		"meta": "Optional enriched context (Dictionary)"
+	},
+	"meta_fields": {
+		"wave": "Current wave number (int, optional)",
+		"gold": "Current gold amount (float, optional)",
+		"essence": "Current essence amount (float, optional)",
+		"fps": "Frames per second (float, optional)"
+	},
+	"events": {
+		"economy.rates_updated": {
+			"category": "Economy",
+			"description": "Fired when per-second resource rates are recalculated",
+			"throttle": "1.0 seconds",
+			"data": {
+				"per_second_rates": "Dictionary of {resource_id: rate} (Dictionary)"
+			}
+		},
+		"economy.resource_changed": {
+			"category": "Economy",
+			"description": "Fired when a resource amount changes",
+			"throttle": "1.0 seconds",
+			"data": {
+				"id": "Resource identifier (string)",
+				"amount": "New total amount (float)",
+				"delta": "Change in amount (float)"
+			}
+		},
+		"upgrade.purchased": {
+			"category": "Upgrade",
+			"description": "Fired when a single upgrade is purchased",
+			"data": {
+				"id": "Upgrade identifier (string)",
+				"level": "New level after purchase (int)",
+				"cost": "Cost paid for this level (float)"
+			}
+		},
+		"upgrades.bulk_purchased": {
+			"category": "Upgrade",
+			"description": "Fired when multiple upgrade levels are purchased at once",
+			"data": {
+				"ids": "Array of upgrade identifiers (Array[string])",
+				"levels": "Array of new levels (Array[int])",
+				"cost_total": "Total cost of bulk purchase (float)"
+			}
+		},
+		"prestige.performed": {
+			"category": "Prestige",
+			"description": "Fired when player performs prestige",
+			"data": {
+				"gained": "Essence gained from this prestige (int)",
+				"total_essence": "Total essence after prestige (float)",
+				"total_prestiges": "Total number of prestiges performed (int)"
+			}
+		},
+		"combat.started": {
+			"category": "Combat",
+			"description": "Fired when a combat wave starts",
+			"data": {
+				"wave": "Wave number (int)",
+				"seed": "Random seed for combat (int)"
+			}
+		},
+		"combat.finished": {
+			"category": "Combat",
+			"description": "Fired when a combat wave finishes",
+			"data": {
+				"wave": "Wave number (int)",
+				"victory": "Whether player won (bool)",
+				"time": "Combat duration in seconds (float)",
+				"enemies_defeated": "Number of enemies defeated (int)",
+				"gold_gained": "Gold reward (float)",
+				"items": "Number of items dropped (int)"
+			}
+		},
+		"inventory.item_acquired": {
+			"category": "Inventory",
+			"description": "Fired when an item is added to inventory",
+			"data": {
+				"id": "Item identifier (string)",
+				"qty": "Quantity added (int)",
+				"rarity": "Item rarity (string)"
+			}
+		},
+		"inventory.item_equipped": {
+			"category": "Inventory",
+			"description": "Fired when an item is equipped",
+			"data": {
+				"slot": "Equipment slot (string)",
+				"id": "Item identifier (string)",
+				"rarity": "Item rarity (string)"
+			}
+		},
+		"meta.level_up": {
+			"category": "Meta",
+			"description": "Fired when a meta upgrade is leveled up",
+			"data": {
+				"id": "Meta upgrade identifier (string)",
+				"new_level": "New level after upgrade (int)",
+				"cost": "Essence cost paid (float)"
+			}
+		},
+		"session.start": {
+			"category": "Session",
+			"description": "Fired when analytics session starts",
+			"data": {
+				"session_id": "Session UUID (string)",
+				"version": "Game version (string)"
+			}
+		},
+		"session.end": {
+			"category": "Session",
+			"description": "Fired when analytics session ends",
+			"data": {
+				"session_id": "Session UUID (string)",
+				"duration": "Session duration in seconds (float)",
+				"events_recorded": "Number of events recorded (int, optional)",
+				"events_dropped": "Number of events dropped (int, optional)"
+			}
+		},
+		"save.completed": {
+			"category": "Save",
+			"description": "Fired when game save completes",
+			"data": {
+				"success": "Whether save succeeded (bool)",
+				"duration_ms": "Time taken to save in milliseconds (float, optional)"
+			}
+		}
+	},
+	"redaction_rules": {
+		"whitelisted_string_fields": ["id", "ids", "slot", "rarity", "event", "session_id", "version", "event_name"],
+		"numeric_range": {
+			"min": -1e15,
+			"max": 1e15
+		},
+		"nan_inf_handling": "Convert to null",
+		"unknown_string_fields": "Redact to [REDACTED]"
+	}
+}

@@ -1,0 +1,12 @@
+{
+	"enabled": false,
+	"project_id": "idle-incremental-godot",
+	"session_sample_rate": 1.0,
+	"event_sample_overrides": {},
+	"throttle": {
+		"economy.rates_updated": 1.0,
+		"economy.resource_changed": 1.0
+	},
+	"ring_buffer_size": 500,
+	"file_rotation_daily": true
+}
