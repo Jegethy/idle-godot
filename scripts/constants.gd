@@ -6,7 +6,7 @@ extends Node
 class_name Constants
 
 # Version
-const SAVE_VERSION: int = 3
+const SAVE_VERSION: int = 4
 
 # Tick rates (seconds)
 const IDLE_TICK_RATE: float = 1.0
@@ -41,6 +41,8 @@ enum ItemRarity {
 enum ItemSlot {
 	WEAPON,
 	ARMOR,
+	TRINKET1,
+	TRINKET2,
 	ACCESSORY,
 	CONSUMABLE
 }
@@ -54,6 +56,19 @@ enum StatModifier {
 	IDLE_RATE_MULTIPLIER,
 	COMBAT_SPEED
 }
+
+# Item effect types (string constants for JSON compatibility)
+class EffectType:
+	const COMBAT_ATTACK_ADD = "combat_attack_add"
+	const COMBAT_DEFENSE_ADD = "combat_defense_add"
+	const COMBAT_ATTACK_MULT = "combat_attack_mult"
+	const COMBAT_DEFENSE_MULT = "combat_defense_mult"
+	const COMBAT_CRIT_CHANCE_ADD = "combat_crit_chance_add"
+	const COMBAT_CRIT_MULTIPLIER_ADD = "combat_crit_multiplier_add"
+	const COMBAT_SPEED_ADD = "combat_speed_add"
+	const IDLE_RATE_ADD = "idle_rate_add"
+	const IDLE_RATE_MULTIPLIER = "idle_rate_multiplier"
+	const ESSENCE_MULTIPLIER = "essence_multiplier"
 
 # Save file path
 const SAVE_FILE_PATH: String = "user://savegame.json"

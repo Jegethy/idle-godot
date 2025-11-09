@@ -509,9 +509,182 @@ If away for 12 hours, gain is capped at 8 hours:
 - ✅ **PR6**: Combat System Expansion (Wave-based, Scaling, Drops, Essence Integration, Deterministic Sim, UI, Tests)
 
 ### Planned
-- ⬜ **PR7**: Items & InventorySystem enhancements
+- ⬜ **PR7**: ✅ Complete - Items & InventorySystem (backend complete, UI deferred)
 - ⬜ **PR8**: Additional combat features (abilities, status effects)
 - ⬜ **PR9**: Balancing, analytics, polish
+
+## 🎒 Inventory & Equipment
+
+The Inventory & Equipment system allows players to collect items from combat drops and equip them to modify both idle production rates and combat statistics.
+
+### Item System
+
+Items are defined in `data/items.json` and loaded at runtime. Each item has:
+- **ID**: Unique identifier (e.g., `iron_sword`)
+- **Name**: Display name
+- **Slot**: Equipment slot (weapon, armor, trinket1, trinket2, accessory, consumable)
+- **Rarity**: Common, Uncommon, Rare, Epic, Legendary
+- **Stackable**: Whether multiple copies merge into a single stack
+- **Effects**: Array of stat modifiers
+
+### Rarity Tiers
+
+| Rarity | Color | Hex Code |
+|--------|-------|----------|
+| Common | Gray | #CCCCCC |
+| Uncommon | Green | #4CAF50 |
+| Rare | Blue | #2196F3 |
+| Epic | Purple | #9C27B0 |
+| Legendary | Orange | #FF9800 |
+
+### Equipment Slots
+
+Players have 5 equipment slots:
+- **weapon**: Primary weapon (affects attack)
+- **armor**: Defensive gear (affects defense)
+- **trinket1**: Accessory slot 1 (various effects)
+- **trinket2**: Accessory slot 2 (various effects)
+- **accessory**: Powerful unique items
+
+Consumables cannot be equipped and are reserved for future use (e.g., potions).
+
+### Item Effects
+
+Items can have multiple effects that modify player stats:
+
+| Effect Type | Description | Example |
+|-------------|-------------|---------|
+| `combat_attack_add` | Flat attack bonus | +5 Attack |
+| `combat_defense_add` | Flat defense bonus | +8 Defense |
+| `combat_attack_mult` | Attack multiplier | +10% Attack |
+| `combat_defense_mult` | Defense multiplier | +15% Defense |
+| `combat_crit_chance_add` | Critical hit chance | +5% Crit Chance |
+| `combat_crit_multiplier_add` | Critical damage bonus | +20% Crit Damage |
+| `combat_speed_add` | Attacks per second | +20% Speed |
+| `idle_rate_add` | Flat idle production | +10 Gold/sec |
+| `idle_rate_multiplier` | Idle production multiplier | +25% Idle Rate |
+| `essence_multiplier` | Essence bonus (future) | +5% Essence |
+
+### Effect Stacking Rules
+
+**Additive Effects**: Multiple items with additive bonuses sum together.
+- Iron Sword (+5 attack) + Steel Armor (+8 defense) = +5 attack, +8 defense
+
+**Multiplicative Effects**: Multiple items with multipliers stack multiplicatively.
+- Steel Armor (+10% attack) + Epic Gem (+15% attack) = ×1.1 × 1.15 = ×1.265 (26.5% total)
+
+**Caps**: To prevent imbalance, multipliers have caps:
+- Attack multiplier: Max +500% (×6.0 total)
+- Idle rate multiplier: Max +1000% (×11.0 total)
+
+### Inventory Management
+
+**Capacity**: Soft cap of 200 item entries (stacks count as 1 entry each).
+
+**Stacking**: Stackable items (like potions) merge automatically:
+- Max stack size: 999
+- Adding to a full stack creates a new stack
+
+**Instance Tracking**: Each non-stackable item has a unique `instance_id` for equipping.
+
+### Stat Recalculation
+
+When items are equipped or unequipped, the system:
+1. Clears all cached modifiers
+2. Iterates through equipped items and applies their effects
+3. Applies caps to prevent overflow
+4. Recalculates idle production rates and combat stats
+5. Emits `modifiers_recomputed` signal
+
+**Formula for Idle Production**:
+```
+effective_rate = (base_rate + upgrade_add + item_idle_add) 
+                 × upgrade_mult × item_idle_multiplier × essence_multiplier
+```
+
+**Formula for Combat Stats**:
+```
+effective_attack = (base_attack + item_attack_add) × item_attack_mult × essence_bonus
+effective_defense = (base_defense + item_defense_add) × item_defense_mult × essence_bonus
+```
+
+### Item Acquisition
+
+Items drop from defeated enemies based on drop tables in `data/enemies.json`:
+- Each enemy has a drop table with weighted items
+- Each drop has a `chance` (probability to drop)
+- Quantities can vary (`min_qty` to `max_qty`)
+- Drops are deterministic when using seeded RNG
+
+**Example Drop Entry**:
+```json
+{
+  "item_id": "epic_gem",
+  "weight": 20,
+  "min_qty": 1,
+  "max_qty": 1,
+  "chance": 0.5
+}
+```
+
+### Save Schema v4
+
+Inventory state is persisted with the following fields:
+
+```json
+{
+  "version": 4,
+  "inventory": [
+    {
+      "id": "iron_sword",
+      "instance_id": "item_1",
+      "quantity": 1,
+      "rarity": "common",
+      "slot": "weapon",
+      "stackable": false
+    }
+  ],
+  "equipped_slots": {
+    "weapon": "item_1",
+    "armor": "item_5"
+  }
+}
+```
+
+**Migration from v3 → v4**:
+- Adds `inventory` array (empty by default)
+- Adds `equipped_slots` dictionary (empty by default)
+- Preserves all existing fields (essence, upgrades, combat state)
+
+### Balancing Tools
+
+**LoadoutSimulation** tool calculates expected performance for item combinations:
+
+```gdscript
+# Simulate idle gain with a loadout
+var loadout: Array = [iron_sword, epic_gem]
+var idle_rate = LoadoutSimulation.simulate_idle_gain(loadout, base_rate)
+
+# Simulate combat DPS
+var dps = LoadoutSimulation.simulate_combat_dps(loadout, base_attack, essence)
+
+# Get complete stat breakdown
+var stats = LoadoutSimulation.calculate_loadout_stats(loadout, 10.0, 5.0, 100.0)
+print("Effective Attack: ", stats["effective_attack"])
+```
+
+### Testing
+
+Run inventory tests with:
+```bash
+godot --headless --script tests/test_item_stacking.gd
+godot --headless --script tests/test_equip_modifiers.gd
+godot --headless --script tests/test_idle_rate_with_items.gd
+godot --headless --script tests/test_serialization_inventory.gd
+godot --headless --script tests/test_migration_v3_to_v4.gd
+godot --headless --script tests/test_drag_drop_logic.gd
+godot --headless --script tests/test_loadout_simulation.gd
+```
 
 ## 🚀 Getting Started
 
@@ -544,6 +717,7 @@ upgrades["upgrade_id"] = new_upgrade
 | 1       | Initial schema with resources, upgrades, items, player stats, essence |
 | 2       | Added `last_saved_time` for offline progression, ensured all known resources present, atomic write with backup |
 | 3       | Added prestige fields: `lifetime_gold`, `total_prestiges`, `essence_spent`, `prestige_settings`; Added combat fields: `current_wave`, `lifetime_enemies_defeated` |
+| 4       | Added inventory fields: `inventory` array with full item serialization, `equipped_slots` dictionary mapping slots to instance IDs |
 
 ## ⚖️ Tuning Constants
 

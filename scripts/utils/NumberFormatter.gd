@@ -54,3 +54,12 @@ static func format_scientific_above(value: float, threshold: float = 1e12, preci
 		return format_str % value
 	else:
 		return format_short(value, precision)
+
+## Format a value as a percentage (e.g., 0.15 -> "15%")
+static func format_percentage(value: float, decimals: int = 0) -> String:
+	var percent := value * 100.0
+	if decimals == 0 and percent == floorf(percent):
+		return "%d%%" % int(percent)
+	else:
+		var format_str := "%%.%df%%%%" % decimals
+		return format_str % percent

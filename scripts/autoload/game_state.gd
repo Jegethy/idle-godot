@@ -11,6 +11,7 @@ signal item_acquired(item_id: String, quantity: int)
 signal prestige_performed(new_essence_total: float)
 signal rates_updated()
 signal essence_changed(total_essence: float)
+signal modifiers_recomputed()
 
 # State data
 var resources: Dictionary = {}  # {id: ResourceModel}
@@ -25,6 +26,22 @@ var essence_spent: float = 0.0  # For future meta-upgrades
 # Combat state
 var current_wave: int = 0
 var lifetime_enemies_defeated: int = 0
+
+# Inventory & Equipment state
+var equipped_slots: Dictionary = {}  # {slot: instance_id}
+
+# Computed modifiers from items (cached for performance)
+var idle_additive: Dictionary = {}  # {resource_id: float} - sum of additive bonuses
+var idle_multiplier_extra: float = 1.0  # Multiplicative bonus from items
+var combat_modifiers: Dictionary = {
+	"attack_add": 0.0,
+	"attack_mult": 1.0,
+	"defense_add": 0.0,
+	"defense_mult": 1.0,
+	"crit_chance_add": 0.0,
+	"crit_multiplier_add": 0.0,
+	"speed_add": 0.0
+}
 
 func _ready() -> void:
 	_initialize_default_state()
