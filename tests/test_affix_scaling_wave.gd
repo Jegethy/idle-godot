@@ -2,9 +2,9 @@
 ## 
 ## Tests that higher waves produce stronger affix values.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Affix Scaling Wave Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some affix scaling wave tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_higher_wave_stronger_affixes() -> bool:
 	print("Test: Higher wave produces stronger affix values")

@@ -2,9 +2,9 @@
 ## 
 ## Tests that v5 saves migrate correctly to v6 with meta upgrade fields.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Migration v5 to v6 Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some migration v5 to v6 tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_v5_to_v6_migration() -> bool:
 	print("Test: v5 save migrates to v6")

@@ -2,13 +2,13 @@
 ## 
 ## Tests that analytics can handle high-volume event emission efficiently.
 
-extends SceneTree
+extends Node
 
 const TARGET_MS_PER_EVENT := 0.3  # Target: ≤ 0.3ms per event
 const BATCH_SIZE := 10000  # Test with 10k events
 const MAX_TOTAL_TIME_MS := 5000.0  # Max 5 seconds for entire batch (generous)
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Performance Batch Emit Tests ===\n")
 	
 	var all_passed := true
@@ -25,7 +25,7 @@ func _init() -> void:
 	else:
 		print("✗ Some performance tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_batch_emit_performance() -> bool:
 	print("Test: Batch emit %d events within performance budget" % BATCH_SIZE)
@@ -67,7 +67,7 @@ func test_batch_emit_performance() -> bool:
 	
 	# Verify events were recorded
 	var stats := AnalyticsService.get_session_stats()
-	var recorded := stats.get("events_recorded", 0)
+	var recorded: int = int(stats.get("events_recorded", 0))
 	
 	# Should have recorded most events (some may be in buffer but not flushed)
 	if recorded < BATCH_SIZE * 0.9:  # Allow 10% margin for buffering
@@ -113,7 +113,7 @@ func test_memory_usage() -> bool:
 	
 	# Oldest events should be dropped
 	var first_event := store.ring_buffer[0]
-	var first_index := first_event.get("data", {}).get("index", -1)
+	var first_index: Dictionary = first_event.get("data", {}).get("index", -1)
 	
 	# First event should be around index 1500 (2000 - 500)
 	if first_index < 1400:  # Allow some tolerance

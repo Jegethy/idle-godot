@@ -2,9 +2,9 @@
 ## 
 ## Tests that events can be exported and imported correctly.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Export/Import Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some export/import tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_export_ndjson() -> bool:
 	print("Test: Export to NDJSON")
@@ -199,7 +199,7 @@ func test_import_ndjson() -> bool:
 		print("  ✗ Import failed")
 		return false
 	
-	var imported_count := result.get("imported", 0)
+	var imported_count: int = int(result.get("imported", 0))
 	if imported_count != 3:
 		print("  ✗ Expected 3 imported events, got %d" % imported_count)
 		return false

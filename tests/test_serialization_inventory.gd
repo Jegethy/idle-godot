@@ -2,9 +2,9 @@
 ## 
 ## Tests that items and equipped state are correctly serialized and deserialized.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Serialization Inventory Tests ===\n")
 	
 	# Reset state
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some serialization inventory tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_save_load_inventory() -> bool:
 	print("Test: Save and load preserves inventory items")

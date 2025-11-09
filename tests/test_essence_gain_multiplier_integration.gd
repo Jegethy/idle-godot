@@ -2,9 +2,9 @@
 ## 
 ## Tests that essence_gain_multiplier meta upgrade increases prestige essence gain.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Essence Gain Multiplier Integration Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some essence gain multiplier integration tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_base_essence_gain() -> bool:
 	print("Test: Base essence gain without multiplier")

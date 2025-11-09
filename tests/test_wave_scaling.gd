@@ -2,9 +2,9 @@
 ## 
 ## Tests that enemy HP, attack, defense, and gold rewards scale according to formulas.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Wave Scaling Tests ===\n")
 	
 	var all_passed := true
@@ -30,7 +30,7 @@ func _init() -> void:
 	else:
 		print("✗ Some wave scaling tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_hp_scaling() -> bool:
 	print("Test: HP scales with growth factor")
@@ -39,8 +39,8 @@ func test_hp_scaling() -> bool:
 	var wave_0 := EnemyDatabase.get_scaled_enemy(enemy_id, 0)
 	var wave_5 := EnemyDatabase.get_scaled_enemy(enemy_id, 5)
 	
-	var base_hp := wave_0.get("hp", 0.0)
-	var scaled_hp := wave_5.get("hp", 0.0)
+	var base_hp: float = float(wave_0.get("hp", 0.0))
+	var scaled_hp: float = float(wave_5.get("hp", 0.0))
 	
 	# Get scaling factor from config
 	var hp_growth := 1.15  # From wave_config.json
@@ -61,8 +61,8 @@ func test_attack_scaling() -> bool:
 	var wave_0 := EnemyDatabase.get_scaled_enemy(enemy_id, 0)
 	var wave_3 := EnemyDatabase.get_scaled_enemy(enemy_id, 3)
 	
-	var base_attack := wave_0.get("attack", 0.0)
-	var scaled_attack := wave_3.get("attack", 0.0)
+	var base_attack: float = float(wave_0.get("attack", 0.0))
+	var scaled_attack: float = float(wave_3.get("attack", 0.0))
 	
 	var attack_growth := 1.10
 	var expected_attack := base_attack * pow(attack_growth, 3)
@@ -82,8 +82,8 @@ func test_gold_scaling() -> bool:
 	var wave_0 := EnemyDatabase.get_scaled_enemy(enemy_id, 0)
 	var wave_10 := EnemyDatabase.get_scaled_enemy(enemy_id, 10)
 	
-	var base_gold := wave_0.get("gold_reward", 0.0)
-	var scaled_gold := wave_10.get("gold_reward", 0.0)
+	var base_gold: float = float(wave_0.get("gold_reward", 0.0))
+	var scaled_gold: float = float(wave_10.get("gold_reward", 0.0))
 	
 	var gold_mult := 1.05
 	var expected_gold := base_gold * pow(gold_mult, 10)
@@ -102,16 +102,16 @@ func test_elite_multipliers() -> bool:
 	var base_enemy := EnemyDatabase.get_scaled_enemy("slime", 1)
 	var elite_enemy := EnemyDatabase.apply_elite_multipliers(base_enemy)
 	
-	var base_hp := base_enemy.get("hp", 0.0)
-	var elite_hp := elite_enemy.get("hp", 0.0)
+	var base_hp: float = float(base_enemy.get("hp", 0.0))
+	var elite_hp: float = float(elite_enemy.get("hp", 0.0))
 	var expected_hp := base_hp * BalanceConstants.ELITE_HP_MULTIPLIER
 	
 	if abs(elite_hp - expected_hp) > 0.1:
 		print("  ✗ Elite HP multiplier incorrect: expected %.2f, got %.2f" % [expected_hp, elite_hp])
 		return false
 	
-	var base_attack := base_enemy.get("attack", 0.0)
-	var elite_attack := elite_enemy.get("attack", 0.0)
+	var base_attack: float = float(base_enemy.get("attack", 0.0))
+	var elite_attack: float = float(elite_enemy.get("attack", 0.0))
 	var expected_attack := base_attack * BalanceConstants.ELITE_ATTACK_MULTIPLIER
 	
 	if abs(elite_attack - expected_attack) > 0.1:
@@ -127,16 +127,16 @@ func test_boss_multipliers() -> bool:
 	var base_enemy := EnemyDatabase.get_scaled_enemy("boss_core", 5)
 	var boss_enemy := EnemyDatabase.apply_boss_multipliers(base_enemy)
 	
-	var base_hp := base_enemy.get("hp", 0.0)
-	var boss_hp := boss_enemy.get("hp", 0.0)
+	var base_hp: float = float(base_enemy.get("hp", 0.0))
+	var boss_hp: float = float(boss_enemy.get("hp", 0.0))
 	var expected_hp := base_hp * BalanceConstants.BOSS_HP_MULTIPLIER
 	
 	if abs(boss_hp - expected_hp) > 0.1:
 		print("  ✗ Boss HP multiplier incorrect: expected %.2f, got %.2f" % [expected_hp, boss_hp])
 		return false
 	
-	var base_attack := base_enemy.get("attack", 0.0)
-	var boss_attack := boss_enemy.get("attack", 0.0)
+	var base_attack: float = float(base_enemy.get("attack", 0.0))
+	var boss_attack: float = float(boss_enemy.get("attack", 0.0))
 	var expected_attack := base_attack * BalanceConstants.BOSS_ATTACK_MULTIPLIER
 	
 	if abs(boss_attack - expected_attack) > 0.1:

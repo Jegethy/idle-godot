@@ -2,9 +2,9 @@
 ## 
 ## Validates short scale formatting (K, M, B, T) and edge cases.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Number Formatting Tests ===\n")
 	
 	var all_passed := true
@@ -33,7 +33,7 @@ func _init() -> void:
 	else:
 		print("✗ Some number formatting tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_below_thousand() -> bool:
 	print("Test: Numbers below 1000")

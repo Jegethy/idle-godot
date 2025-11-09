@@ -2,9 +2,9 @@
 ## 
 ## Validates that compute_bulk_delta matches actual rate increase after purchase.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Bulk Delta Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some bulk delta tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_single_level_delta() -> bool:
 	print("Test: Single level delta")

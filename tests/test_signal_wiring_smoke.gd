@@ -2,9 +2,9 @@
 ## 
 ## Smoke tests to ensure signal wiring is working correctly.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Signal Wiring Smoke Tests ===\n")
 	
 	# We need to manually instantiate AnalyticsWiring since we're in a test
@@ -28,7 +28,7 @@ func _init() -> void:
 	else:
 		print("✗ Some signal wiring tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_resource_changed_signal() -> bool:
 	print("Test: Resource changed signal triggers analytics event")

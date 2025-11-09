@@ -2,9 +2,9 @@
 ## 
 ## Tests that item modifiers are applied to idle production correctly.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Idle Rate With Items Tests ===\n")
 	
 	# Reset state
@@ -29,7 +29,7 @@ func _init() -> void:
 	else:
 		print("✗ Some idle rate with items tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_item_additive_bonus() -> bool:
 	print("Test: Item additive bonus affects idle rate")

@@ -2,9 +2,9 @@
 ## 
 ## Tests that essence correctly increases idle rate multiplier.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Essence Multiplier Tests ===\n")
 	
 	var all_passed := true
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some essence multiplier tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_zero_essence_multiplier() -> bool:
 	print("Test: Zero essence gives 1.0x multiplier")

@@ -118,8 +118,8 @@ func _on_upgrade_purchased(upgrade_id: String, new_level: int) -> void:
 
 func _on_bulk_purchase_completed(upgrade_id: String, levels_purchased: int) -> void:
 	var upgrade = GameState.get_upgrade(upgrade_id)
-	var new_level := upgrade.level if upgrade else 0
-	var cost := UpgradeService.compute_bulk_cost(upgrade_id, levels_purchased)
+	var new_level: int = upgrade.level if upgrade else 0
+	var cost: float = UpgradeService.compute_bulk_cost(upgrade_id, levels_purchased)
 	
 	AnalyticsService.emit_event("upgrades.bulk_purchased", {
 		"ids": [upgrade_id],  # Array for consistency with schema
@@ -196,7 +196,7 @@ func _on_item_equipped(slot: String, instance_id: String) -> void:
 
 func _on_meta_upgrade_leveled(id: StringName, new_level: int) -> void:
 	var upgrade = MetaUpgradeService.get_upgrade(str(id))
-	var cost := upgrade.get_cost_at_level(new_level - 1) if upgrade else 0.0
+	var cost: float = upgrade.get_cost_at_level(new_level - 1) if upgrade else 0.0
 	
 	AnalyticsService.emit_event("meta.level_up", {
 		"id": str(id),

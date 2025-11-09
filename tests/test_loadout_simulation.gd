@@ -2,9 +2,9 @@
 ## 
 ## Tests the LoadoutSimulation tool for balancing and analysis.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Loadout Simulation Tests ===\n")
 	
 	# Reset state
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some loadout simulation tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_idle_gain_simulation() -> bool:
 	print("Test: Idle gain simulation")

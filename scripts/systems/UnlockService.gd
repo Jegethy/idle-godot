@@ -44,19 +44,19 @@ func evaluate_condition(condition: Dictionary) -> bool:
 	if condition.is_empty():
 		return true
 	
-	var condition_type := condition.get("type", "")
+	var condition_type: String = String(condition.get("type", ""))
 	
 	match condition_type:
 		"resource_amount":
-			var resource_id := condition.get("resource", "")
-			var threshold := condition.get("threshold", 0.0)
+			var resource_id: String = String(condition.get("resource", ""))
+			var threshold: float = float(condition.get("threshold", 0.0))
 			if GameState.resources.has(resource_id):
 				return GameState.resources[resource_id].amount >= threshold
 			return false
 		
 		"upgrade_level":
-			var upgrade_id := condition.get("upgrade_id", "")
-			var required_level := condition.get("level", 1)
+			var upgrade_id: String = String(condition.get("upgrade_id", ""))
+			var required_level: int = int(condition.get("level", 1))
 			if GameState.upgrades.has(upgrade_id):
 				return GameState.upgrades[upgrade_id].level >= required_level
 			return false

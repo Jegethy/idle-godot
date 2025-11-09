@@ -2,9 +2,9 @@
 ## 
 ## Tests that sensitive data is redacted and numeric values are sanitized.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Redaction and Validation Tests ===\n")
 	
 	var all_passed := true
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some redaction and validation tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_string_redaction() -> bool:
 	print("Test: Non-whitelisted strings are redacted")
@@ -164,7 +164,7 @@ func test_pii_detection() -> bool:
 		return false
 	
 	# Test very long strings
-	var long_string := "a" * 150
+	var long_string: String = "a".repeat(150)
 	if not Anonymizer.is_potentially_pii(long_string):
 		print("  ✗ Long string should be detected as PII")
 		return false

@@ -18,10 +18,10 @@ static func simulate_idle_gain(loadout: Array, base_rate: float) -> float:
 			continue
 		
 		# Use compute_total_effects to include affixes
-		var total_effects := item.compute_total_effects()
+		var total_effects: Array = item.compute_total_effects()
 		for effect in total_effects:
-			var effect_type: String = effect.get("type", "")
-			var value: float = effect.get("value", 0.0)
+			var effect_type: String = String(effect.get("type", ""))
+			var value: float = float(effect.get("value", 0.0))
 			
 			match effect_type:
 				Constants.EffectType.IDLE_RATE_ADD:
@@ -53,10 +53,10 @@ static func simulate_combat_dps(loadout: Array, base_attack: float, essence: flo
 			continue
 		
 		# Use compute_total_effects to include affixes
-		var total_effects := item.compute_total_effects()
+		var total_effects: Array = item.compute_total_effects()
 		for effect in total_effects:
-			var effect_type: String = effect.get("type", "")
-			var value: float = effect.get("value", 0.0)
+			var effect_type: String = String(effect.get("type", ""))
+			var value: float = float(effect.get("value", 0.0))
 			
 			match effect_type:
 				Constants.EffectType.COMBAT_ATTACK_ADD:
@@ -115,10 +115,10 @@ static func calculate_loadout_stats(loadout: Array, base_attack: float = 10.0, b
 			continue
 		
 		# Use compute_total_effects to include affixes
-		var total_effects := item.compute_total_effects()
+		var total_effects: Array = item.compute_total_effects()
 		for effect in total_effects:
-			var effect_type: String = effect.get("type", "")
-			var value: float = effect.get("value", 0.0)
+			var effect_type: String = String(effect.get("type", ""))
+			var value: float = float(effect.get("value", 0.0))
 			
 			match effect_type:
 				Constants.EffectType.COMBAT_ATTACK_ADD:

@@ -2,7 +2,7 @@
 ## 
 ## Tests that each service emits its own signals and analytics captures them.
 
-extends SceneTree
+extends Node
 
 # Mock components for testing
 var mock_game_state
@@ -12,7 +12,7 @@ var mock_economy
 var mock_meta_service
 var mock_inventory
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Signal Emit Paths Tests ===\n")
 	
 	var all_passed := true
@@ -45,10 +45,10 @@ func _init() -> void:
 	print("=== Summary ===")
 	if all_passed:
 		print("✓ All signal emit path tests passed!")
-		quit(0)
+		get_tree().quit(0)
 	else:
 		print("✗ Some signal emit path tests failed")
-		quit(1)
+		get_tree().quit(1)
 
 func test_upgrade_purchased_signal() -> bool:
 	# Check that UpgradeService has the signal

@@ -11,8 +11,8 @@ static func export_to_ndjson(analytics: Node, output_path: String, options: Dict
 		push_error("AnalyticsService not available")
 		return false
 	
-	var filter_prefix := options.get("filter_prefix", "")
-	var max_rows := options.get("max_rows", -1)
+	var filter_prefix: String = String(options.get("filter_prefix", ""))
+	var max_rows: int = int(options.get("max_rows", -1))
 	
 	return analytics.export_ndjson(output_path, filter_prefix, max_rows)
 
@@ -22,8 +22,8 @@ static func export_to_csv(analytics: Node, output_path: String, options: Diction
 		push_error("AnalyticsService not available")
 		return false
 	
-	var filter_prefix := options.get("filter_prefix", "")
-	var max_rows := options.get("max_rows", -1)
+	var filter_prefix: String = String(options.get("filter_prefix", ""))
+	var max_rows: int = int(options.get("max_rows", -1))
 	
 	return analytics.export_csv(output_path, filter_prefix, max_rows)
 

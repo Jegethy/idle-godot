@@ -3,9 +3,9 @@
 ## Tests that perform_prestige properly resets resources, upgrades,
 ## and items while preserving essence and lifetime_gold.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Prestige Reset Tests ===\n")
 	
 	var all_passed := true
@@ -28,7 +28,7 @@ func _init() -> void:
 	else:
 		print("✗ Some prestige reset tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_gold_resets_to_zero() -> bool:
 	print("Test: Gold resets to 0 after prestige")

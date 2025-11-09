@@ -2,9 +2,9 @@
 ## 
 ## Tests that equipping items applies stat modifiers and formulas are correct.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Equip Modifiers Tests ===\n")
 	
 	# Reset state
@@ -32,7 +32,7 @@ func _init() -> void:
 	else:
 		print("✗ Some equip modifiers tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_equip_attack_bonus() -> bool:
 	print("Test: Equip item with attack bonus")

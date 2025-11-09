@@ -2,9 +2,9 @@
 ## 
 ## Tests exponential cost growth for item rerolls.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Reroll Cost Progression Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some reroll cost progression tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_first_reroll_base_cost() -> bool:
 	print("Test: First reroll has base cost")

@@ -2,9 +2,9 @@
 ## 
 ## Tests that the same seed yields the same affixes and values.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Affix Roll Deterministic Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some affix roll deterministic tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_same_seed_same_affixes() -> bool:
 	print("Test: Same seed produces same affixes")

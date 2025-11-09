@@ -2,9 +2,9 @@
 ## 
 ## Tests that fast simulation and interactive tick simulation produce the same outcome.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Fast vs Interactive Equivalence Test ===\n")
 	
 	var all_passed := true
@@ -21,7 +21,7 @@ func _init() -> void:
 	else:
 		print("✗ Some fast vs interactive tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_mode_equivalence() -> bool:
 	print("Test: Same seed yields same result in both modes")
@@ -46,9 +46,9 @@ func test_mode_equivalence() -> bool:
 	# For now, we'll compare key metrics from fast_result
 	# In a real implementation, we'd capture the signal
 	
-	var fast_victory := fast_result.get("victory", false)
-	var fast_enemies := fast_result.get("enemies_defeated", 0)
-	var fast_time := fast_result.get("time", 0.0)
+	var fast_victory: bool = bool(fast_result.get("victory", false))
+	var fast_enemies: int = int(fast_result.get("enemies_defeated", 0))
+	var fast_time: float = float(fast_result.get("time", 0.0))
 	
 	# We can't easily get the interactive result without signal capture,
 	# but we can verify the wave ended properly
@@ -74,7 +74,7 @@ func test_outcome_equivalence() -> bool:
 	
 	# Fast mode
 	var fast_result := CombatSystem.fast_simulate_wave(0, seed_value)
-	var fast_victory := fast_result.get("victory", false)
+	var fast_victory: bool = bool(fast_result.get("victory", false))
 	
 	# Interactive mode
 	CombatSystem.start_wave(0, seed_value)

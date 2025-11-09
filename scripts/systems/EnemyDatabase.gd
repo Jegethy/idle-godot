@@ -87,12 +87,12 @@ func get_scaled_enemy(enemy_id: String, wave_index: int) -> Dictionary:
 		return {}
 	
 	var base_enemy: Dictionary = enemies[enemy_id]
-	var scaling := wave_config.get("wave_scaling", {})
+	var scaling: Dictionary = wave_config.get("wave_scaling", {})
 	
-	var hp_growth := scaling.get("hp_growth_factor", 1.15)
-	var attack_growth := scaling.get("attack_growth_factor", 1.10)
-	var defense_growth := scaling.get("defense_growth_factor", 1.08)
-	var gold_mult := scaling.get("gold_reward_multiplier_per_wave", 1.05)
+	var hp_growth: float = float(scaling.get("hp_growth_factor", 1.15))
+	var attack_growth: float = float(scaling.get("attack_growth_factor", 1.10))
+	var defense_growth: float = float(scaling.get("defense_growth_factor", 1.08))
+	var gold_mult: float = float(scaling.get("gold_reward_multiplier_per_wave", 1.05))
 	
 	var scaled_enemy := {
 		"id": enemy_id,

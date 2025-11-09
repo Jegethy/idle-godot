@@ -2,9 +2,9 @@
 ## 
 ## Tests that upgrades are correctly sorted by return on investment.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running ROI Sorting Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some ROI sorting tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_roi_calculation() -> bool:
 	print("Test: ROI calculation for different upgrade types")

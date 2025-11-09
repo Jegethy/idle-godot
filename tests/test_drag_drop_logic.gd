@@ -2,9 +2,9 @@
 ## 
 ## Tests the headless logic for drag/drop operations without UI.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Drag Drop Logic Tests ===\n")
 	
 	# Reset state
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some drag drop logic tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_equip_to_correct_slot() -> bool:
 	print("Test: Can equip item to correct slot")

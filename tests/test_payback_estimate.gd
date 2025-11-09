@@ -2,9 +2,9 @@
 ## 
 ## Tests projection simulator payback time estimates.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Payback Estimate Tests ===\n")
 	
 	var all_passed := true
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some payback estimate tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_idle_multiplier_payback() -> bool:
 	print("Test: Payback calculation for idle multiplier upgrade")
@@ -121,7 +121,7 @@ func test_non_idle_returns_inf() -> bool:
 		print("  ✗ Non-idle upgrade should have infinite payback")
 		return false
 	
-	var payback := payback_info.get("payback_seconds", 0.0)
+	var payback: float = float(payback_info.get("payback_seconds", 0.0))
 	if payback != INF:
 		print("  ✗ Expected INF payback for non-idle upgrade, got %.2f" % payback)
 		return false

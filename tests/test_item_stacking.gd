@@ -2,9 +2,9 @@
 ## 
 ## Tests that stackable items merge quantities and respect MAX_STACK cap.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Item Stacking Tests ===\n")
 	
 	# Reset UUID counter for consistent testing
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some item stacking tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_stackable_items_merge() -> bool:
 	print("Test: Stackable items merge quantities")

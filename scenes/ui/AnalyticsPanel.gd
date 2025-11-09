@@ -105,18 +105,18 @@ func _update_ui() -> void:
 	
 	# Update session ID
 	if session_id_label:
-		var session_id := stats.get("session_id", "N/A")
+		var session_id: String = String(stats.get("session_id", "N/A"))
 		session_id_label.text = "Session: %s" % (session_id if not session_id.is_empty() else "N/A")
 	
 	# Update counters
 	if events_label:
-		events_label.text = "Events: %d" % stats.get("events_recorded", 0)
+		events_label.text = "Events: %d" % int(stats.get("events_recorded", 0))
 	
 	if drops_label:
-		drops_label.text = "Dropped: %d" % stats.get("events_dropped", 0)
+		drops_label.text = "Dropped: %d" % int(stats.get("events_dropped", 0))
 	
 	if events_per_sec_label:
-		var eps := stats.get("events_per_sec", 0.0)
+		var eps: float = float(stats.get("events_per_sec", 0.0))
 		events_per_sec_label.text = "Events/sec: %.2f" % eps
 	
 	# Update event list (only when events change to avoid flickering)
@@ -137,9 +137,9 @@ func _update_event_list() -> void:
 		event_list.clear()
 		
 		for event in recent_events:
-			var event_name := event.get("event", "unknown")
-			var ts := event.get("ts", 0.0)
-			var time_str := Time.get_datetime_string_from_unix_time(int(ts))
+			var event_name: String = String(event.get("event", "unknown"))
+			var ts: int = int(event.get("ts", 0))
+			var time_str: String = Time.get_datetime_string_from_unix_time(ts)
 			
 			# Get event highlights
 			var highlight := _get_event_highlight(event)
@@ -153,20 +153,20 @@ func _update_event_list() -> void:
 
 ## Get highlight info for event (e.g., gold delta, wave number)
 func _get_event_highlight(event: Dictionary) -> String:
-	var data = event.get("data", {})
-	var event_name := event.get("event", "")
+	var data: Dictionary = event.get("data", {})
+	var event_name: String = String(event.get("event", ""))
 	
 	match event_name:
 		"economy.resource_changed":
-			return "(Δ%.0f)" % data.get("delta", 0.0)
+			return "(Δ%.0f)" % float(data.get("delta", 0.0))
 		"combat.finished":
-			var victory := data.get("victory", false)
-			var wave := data.get("wave", 0)
+			var victory: bool = bool(data.get("victory", false))
+			var wave: int = int(data.get("wave", 0))
 			return "(W%d %s)" % [wave, "✓" if victory else "✗"]
 		"prestige.performed":
-			return "(+%d essence)" % data.get("gained", 0)
+			return "(+%d essence)" % int(data.get("gained", 0))
 		"upgrade.purchased":
-			return "(L%d)" % data.get("level", 0)
+			return "(L%d)" % int(data.get("level", 0))
 		_:
 			return ""
 

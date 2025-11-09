@@ -144,11 +144,11 @@ func _generate_wave_enemies(wave_index: int) -> Array[Dictionary]:
 	var enemies: Array[Dictionary] = []
 	
 	var enemy_database := get_node("/root/EnemyDatabase")
-	var composition := enemy_database.get_wave_composition()
-	var base_count: int = composition.get("base_enemy_count", 3)
-	var count_growth: float = composition.get("enemy_count_growth_per_wave", 0.2)
-	var elite_every_n: int = composition.get("elite_every_n", 5)
-	var boss_every_m: int = composition.get("boss_every_m", 10)
+	var composition: Dictionary = enemy_database.get_wave_composition()
+	var base_count: int = int(composition.get("base_enemy_count", 3))
+	var count_growth: float = float(composition.get("enemy_count_growth_per_wave", 0.2))
+	var elite_every_n: int = int(composition.get("elite_every_n", 5))
+	var boss_every_m: int = int(composition.get("boss_every_m", 10))
 	
 	# Calculate enemy count
 	var enemy_count := int(base_count + wave_index * count_growth)
@@ -157,7 +157,7 @@ func _generate_wave_enemies(wave_index: int) -> Array[Dictionary]:
 	# Check if this is a boss wave
 	if wave_index > 0 and wave_index % boss_every_m == 0:
 		# Boss wave: single boss enemy
-		var boss := enemy_database.get_scaled_enemy("boss_core", wave_index)
+		var boss: Dictionary = enemy_database.get_scaled_enemy("boss_core", wave_index)
 		if not boss.is_empty():
 			boss = enemy_database.apply_boss_multipliers(boss)
 			boss["combat_speed"] = 1.0
@@ -165,12 +165,12 @@ func _generate_wave_enemies(wave_index: int) -> Array[Dictionary]:
 		return enemies
 	
 	# Regular wave with possible elite
-	var rotation := enemy_database.get_enemy_rotation()
+	var rotation: Array = enemy_database.get_enemy_rotation()
 	var is_elite_wave := wave_index > 0 and wave_index % elite_every_n == 0
 	
 	for i in range(enemy_count):
 		var enemy_id: String = rotation[i % rotation.size()]
-		var enemy := enemy_database.get_scaled_enemy(enemy_id, wave_index)
+		var enemy: Dictionary = enemy_database.get_scaled_enemy(enemy_id, wave_index)
 		
 		if enemy.is_empty():
 			continue

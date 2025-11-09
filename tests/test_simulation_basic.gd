@@ -2,9 +2,9 @@
 ## 
 ## Validates that PrestigeSimulation produces deterministic results.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Prestige Simulation Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some simulation tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_simple_simulation() -> bool:
 	print("Test: Simple simulation with fixed rate")

@@ -2,9 +2,9 @@
 ## 
 ## Tests that the analyzer correctly computes stat differences.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Analyzer Difference Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some analyzer difference tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_analyzer_detects_improvement() -> bool:
 	print("Test: Analyzer detects improvement when candidate has better stats")

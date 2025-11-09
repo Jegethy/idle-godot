@@ -2,9 +2,9 @@
 ## 
 ## Tests that v3 saves migrate correctly to v4 with inventory fields.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Migration v3 to v4 Tests ===\n")
 	
 	var all_passed := true
@@ -21,7 +21,7 @@ func _init() -> void:
 	else:
 		print("✗ Some migration v3 to v4 tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_v3_to_v4_migration() -> bool:
 	print("Test: v3 save migrates to v4")
