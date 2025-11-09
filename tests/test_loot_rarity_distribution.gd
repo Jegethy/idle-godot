@@ -2,9 +2,9 @@
 ## 
 ## Tests that rarity distribution follows expected weights.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Loot Rarity Distribution Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some loot rarity distribution tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_common_most_frequent() -> bool:
 	print("Test: Common rarity is most frequent")

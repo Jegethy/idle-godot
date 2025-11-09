@@ -2,9 +2,9 @@
 ## 
 ## Validates that binary search returns correct maximum quantity for exponential scaling.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Max Purchase Binary Search Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some max purchase tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_basic_max_purchase() -> bool:
 	print("Test: Basic max purchase")

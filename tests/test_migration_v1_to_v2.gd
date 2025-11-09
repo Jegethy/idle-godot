@@ -2,9 +2,9 @@
 ## 
 ## Validates that v1 saves are correctly migrated to v2 format.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Migration v1 to v2 Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some migration tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_migration_adds_last_saved_time() -> bool:
 	print("Test: Migration adds last_saved_time field")

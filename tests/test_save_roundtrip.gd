@@ -2,11 +2,11 @@
 ## 
 ## Validates that saving and loading preserves resource amounts.
 
-extends SceneTree
+extends Node
 
 const TOLERANCE := 0.01  # Float comparison tolerance
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Save Roundtrip Tests ===\n")
 	
 	var all_passed := true
@@ -23,7 +23,7 @@ func _init() -> void:
 	else:
 		print("✗ Some save roundtrip tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_save_load_preserves_gold() -> bool:
 	print("Test: Save/load preserves gold amount")

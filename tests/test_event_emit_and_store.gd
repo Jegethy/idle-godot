@@ -2,9 +2,9 @@
 ## 
 ## Tests that events are properly stored in EventStore and ring buffer.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Event Emit and Store Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some event emit and store tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_emit_and_store() -> bool:
 	print("Test: Emit events and verify storage")
@@ -56,10 +56,11 @@ func test_emit_and_store() -> bool:
 	var found_event3 := false
 	
 	for event in recent_events:
-		var event_name = event.get("event", "")
+		var event_name: String = String(event.get("event", ""))
 		if event_name == "test.event1":
 			found_event1 = true
-			if event.get("data", {}).get("value", 0) != 1:
+			var event_data: Dictionary = event.get("data", {})
+			if int(event_data.get("value", 0)) != 1:
 				print("  ✗ Event1 data incorrect")
 				AnalyticsService.set_enabled(false)
 				return false
@@ -102,7 +103,9 @@ func test_ring_buffer_limit() -> bool:
 		return false
 	
 	# Should have events 5-9
-	var first_event_value = store.ring_buffer[0].get("data", {}).get("value", -1)
+	var first_event: Dictionary = store.ring_buffer[0]
+	var first_event_data: Dictionary = first_event.get("data", {})
+	var first_event_value: int = int(first_event_data.get("value", -1))
 	if first_event_value != 5:
 		print("  ✗ Ring buffer should have event 5 first, got %d" % first_event_value)
 		return false

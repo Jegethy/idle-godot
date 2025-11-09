@@ -3,9 +3,9 @@
 ## This script validates the basic functionality of the core systems.
 ## Run from the Godot editor via Tools -> Script -> Run.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running PR1 Validation Tests ===\n")
 	
 	var all_passed := true
@@ -31,7 +31,7 @@ func _init() -> void:
 	else:
 		print("✗ Some tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_singletons_loaded() -> bool:
 	print("Test: Singletons loaded")

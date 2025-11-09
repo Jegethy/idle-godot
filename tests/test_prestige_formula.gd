@@ -3,9 +3,9 @@
 ## Tests the prestige formula with various lifetime_gold values
 ## including soft cap behavior.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Prestige Formula Tests ===\n")
 	
 	var all_passed := true
@@ -28,7 +28,7 @@ func _init() -> void:
 	else:
 		print("✗ Some prestige formula tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_formula_at_threshold() -> bool:
 	print("Test: Formula at exactly 1M gold threshold")

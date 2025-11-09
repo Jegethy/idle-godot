@@ -2,9 +2,9 @@
 ## 
 ## Tests that analytics sessions are properly managed.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Session Lifecycle Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some session lifecycle tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_session_start() -> bool:
 	print("Test: Session starts when analytics enabled")
@@ -117,7 +117,7 @@ func test_session_duration() -> bool:
 	
 	# Get session stats
 	var stats := AnalyticsService.get_session_stats()
-	var duration := stats.get("duration", 0.0)
+	var duration: float = float(stats.get("duration", 0.0))
 	
 	if duration <= 0:
 		print("  ✗ Session duration should be positive, got: %.3f" % duration)
@@ -152,7 +152,7 @@ func test_session_duration() -> bool:
 				print("  ✗ session.end event missing duration")
 				return false
 			
-			var end_duration := data.get("duration", 0.0)
+			var end_duration: float = float(data.get("duration", 0.0))
 			if end_duration <= 0:
 				print("  ✗ session.end duration should be positive, got: %.3f" % end_duration)
 				return false

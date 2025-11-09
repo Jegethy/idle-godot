@@ -2,9 +2,9 @@
 ## 
 ## Tests that large event lists are split across multiple batches.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Upload Batching Tests ===\n")
 	
 	var all_passed := true
@@ -31,10 +31,10 @@ func _init() -> void:
 	print("=== Summary ===")
 	if all_passed:
 		print("✓ All upload batching tests passed!")
-		quit(0)
+		get_tree().quit(0)
 	else:
 		print("✗ Some upload batching tests failed")
-		quit(1)
+		get_tree().quit(1)
 
 func test_max_events_limit() -> bool:
 	var store := EventStore.new()

@@ -2,9 +2,9 @@
 ## 
 ## Tests that respec returns correct percentage and resets levels.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Respec Refund Tests ===\n")
 	
 	var all_passed := true
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some respec refund tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_respec_refund_percentage() -> bool:
 	print("Test: Respec refunds correct percentage (60%)")
@@ -64,7 +64,7 @@ func test_respec_refund_percentage() -> bool:
 		print("  ✗ Respec failed")
 		return false
 	
-	var refunded := result.get("refunded", 0.0)
+	var refunded: float = float(result.get("refunded", 0.0))
 	
 	if not is_equal_approx(refunded, expected_refund):
 		print("  ✗ Expected refund %.2f (60%% of %.2f), got %.2f" % [expected_refund, spent, refunded])

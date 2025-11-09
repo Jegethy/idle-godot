@@ -2,9 +2,9 @@
 ## 
 ## Tests that the Diagnostics tool properly verifies autoload existence.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Diagnostics Autoloads Tests ===\n")
 	
 	var all_passed := true
@@ -31,10 +31,10 @@ func _init() -> void:
 	print("=== Summary ===")
 	if all_passed:
 		print("✓ All diagnostics tests passed!")
-		quit(0)
+		get_tree().quit(0)
 	else:
 		print("✗ Some diagnostics tests failed")
-		quit(1)
+		get_tree().quit(1)
 
 func test_autoload_existence() -> bool:
 	# Create a Diagnostics instance

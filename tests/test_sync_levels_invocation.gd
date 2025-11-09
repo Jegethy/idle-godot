@@ -3,9 +3,9 @@
 ## 
 ## Tests that the method is called through the autoload instance.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Sync Levels Invocation Tests ===\n")
 	
 	var all_passed := true
@@ -32,10 +32,10 @@ func _init() -> void:
 	print("=== Summary ===")
 	if all_passed:
 		print("✓ All sync levels invocation tests passed!")
-		quit(0)
+		get_tree().quit(0)
 	else:
 		print("✗ Some sync levels invocation tests failed")
-		quit(1)
+		get_tree().quit(1)
 
 func test_meta_service_is_node() -> bool:
 	# MetaUpgradeService should be accessible as an autoload

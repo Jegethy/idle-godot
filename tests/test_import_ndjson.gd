@@ -2,9 +2,9 @@
 ## 
 ## Tests import validation and error handling.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Import NDJSON Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some import NDJSON tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_import_with_invalid_lines() -> bool:
 	print("Test: Import with invalid JSON lines")
@@ -66,8 +66,8 @@ func test_import_with_invalid_lines() -> bool:
 		return false
 	
 	# Should import 2 valid events, skip 1 invalid
-	var imported := result.get("imported", 0)
-	var skipped := result.get("skipped", 0)
+	var imported: int = int(result.get("imported", 0))
+	var skipped: int = int(result.get("skipped", 0))
 	
 	if imported != 2:
 		print("  ✗ Expected 2 imported events, got %d" % imported)
@@ -125,8 +125,8 @@ func test_import_with_invalid_schema() -> bool:
 	var result := store.import_from_ndjson(import_path)
 	
 	# Should import only the valid event
-	var imported := result.get("imported", 0)
-	var skipped := result.get("skipped", 0)
+	var imported: int = int(result.get("imported", 0))
+	var skipped: int = int(result.get("skipped", 0))
 	
 	if imported != 1:
 		print("  ✗ Expected 1 imported event, got %d" % imported)

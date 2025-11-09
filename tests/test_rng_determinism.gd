@@ -2,9 +2,9 @@
 ## 
 ## Tests that the RNGService generates identical sequences with the same seed.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running RNG Determinism Tests ===\n")
 	
 	var all_passed := true
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some RNG determinism tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_same_seed_same_sequence() -> bool:
 	print("Test: Same seed produces same sequence")

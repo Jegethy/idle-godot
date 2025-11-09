@@ -2,9 +2,9 @@
 ## 
 ## Tests that compute_total_effects properly caches and invalidates.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Total Effects Cache Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some total effects cache tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_cache_returns_same_reference() -> bool:
 	print("Test: Cache returns same reference on multiple calls")

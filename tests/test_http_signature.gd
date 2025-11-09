@@ -2,9 +2,9 @@
 ## 
 ## Tests that the HttpTransport produces deterministic HMAC signatures.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running HTTP Signature Tests ===\n")
 	
 	var all_passed := true
@@ -31,10 +31,10 @@ func _init() -> void:
 	print("=== Summary ===")
 	if all_passed:
 		print("✓ All HTTP signature tests passed!")
-		quit(0)
+		get_tree().quit(0)
 	else:
 		print("✗ Some HTTP signature tests failed")
-		quit(1)
+		get_tree().quit(1)
 
 func test_deterministic_signature() -> bool:
 	var transport := HttpTransport.new("https://example.com/api", "test-key", "test-secret")

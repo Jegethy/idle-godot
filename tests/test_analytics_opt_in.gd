@@ -2,9 +2,9 @@
 ## 
 ## Tests that analytics is OFF by default and requires explicit opt-in.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Analytics Opt-In Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some analytics opt-in tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_analytics_disabled_by_default() -> bool:
 	print("Test: Analytics disabled by default")

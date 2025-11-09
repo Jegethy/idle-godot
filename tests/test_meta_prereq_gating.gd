@@ -2,9 +2,9 @@
 ## 
 ## Tests that upgrades cannot be leveled without meeting prerequisites.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Meta Prerequisite Gating Tests ===\n")
 	
 	var all_passed := true
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some meta prerequisite gating tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_cannot_level_without_prereq() -> bool:
 	print("Test: Cannot level upgrade without prerequisite")

@@ -2,9 +2,9 @@
 ## 
 ## Tests that meta upgrade effects are correctly aggregated and applied.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Meta Effect Aggregation Tests ===\n")
 	
 	var all_passed := true
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some meta effect aggregation tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_single_upgrade_effect() -> bool:
 	print("Test: Single upgrade effect aggregation")

@@ -2,9 +2,9 @@
 ## 
 ## Tests that item drops follow configured probabilities (with tolerance).
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Combat Drop Probability Test ===\n")
 	
 	var all_passed := true
@@ -21,7 +21,7 @@ func _init() -> void:
 	else:
 		print("✗ Some combat drop probability tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_drop_frequency() -> bool:
 	print("Test: Drops occur within expected frequency range")

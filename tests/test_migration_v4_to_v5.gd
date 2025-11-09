@@ -2,9 +2,9 @@
 ## 
 ## Tests that v4 saves migrate correctly to v5 with affix fields.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Migration v4 to v5 Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some migration v4 to v5 tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_v4_to_v5_migration() -> bool:
 	print("Test: v4 save migrates to v5")

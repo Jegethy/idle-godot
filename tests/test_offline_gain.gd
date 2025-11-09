@@ -2,11 +2,11 @@
 ## 
 ## Validates that offline progression grants correct resources based on time away.
 
-extends SceneTree
+extends Node
 
 const TOLERANCE := 1.0  # Allow 1 gold tolerance for offline calculations
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Offline Gain Tests ===\n")
 	
 	var all_passed := true
@@ -23,7 +23,7 @@ func _init() -> void:
 	else:
 		print("✗ Some offline gain tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_offline_gain_1_hour() -> bool:
 	print("Test: 1 hour offline progression with known rate")

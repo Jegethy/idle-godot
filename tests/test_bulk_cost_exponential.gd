@@ -2,9 +2,9 @@
 ## 
 ## Validates geometric series formula against iterative summation.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Bulk Cost Exponential Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some bulk cost exponential tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_single_purchase() -> bool:
 	print("Test: Single purchase (n=1)")

@@ -2,9 +2,9 @@
 ## 
 ## Validates that v2 saves are correctly migrated to v3 format with prestige fields.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Migration v2 to v3 Tests ===\n")
 	
 	var all_passed := true
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some migration v2→v3 tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_migration_adds_prestige_fields() -> bool:
 	print("Test: Migration adds prestige fields")

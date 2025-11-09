@@ -2,9 +2,9 @@
 ## 
 ## Tests exponential, linear, and polynomial cost curves.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Meta Cost Curves Tests ===\n")
 	
 	var all_passed := true
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some meta cost curves tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_exponential_cost_curve() -> bool:
 	print("Test: Exponential cost curve calculation")

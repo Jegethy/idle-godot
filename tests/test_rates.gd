@@ -2,9 +2,9 @@
 ## 
 ## Validates base rate accumulation, rate upgrades, and multiplier upgrades.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Rate Calculation Tests ===\n")
 	
 	var all_passed := true
@@ -27,7 +27,7 @@ func _init() -> void:
 	else:
 		print("✗ Some rate tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_base_rate_accumulation() -> bool:
 	print("Test: Base rate accumulation")

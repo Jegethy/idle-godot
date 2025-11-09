@@ -2,9 +2,9 @@
 ## 
 ## Tests that event sampling rates and throttle windows are respected.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Throttle and Sampling Tests ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some throttle and sampling tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_zero_sampling() -> bool:
 	print("Test: Sampling at 0.0 drops all events")
@@ -56,7 +56,7 @@ func test_zero_sampling() -> bool:
 	
 	# Check drops counter
 	var stats := AnalyticsService.get_session_stats()
-	var drops := stats.get("events_dropped", 0)
+	var drops: int = int(stats.get("events_dropped", 0))
 	if drops != 10:
 		print("  ✗ Expected 10 dropped events, got %d" % drops)
 		AnalyticsService.set_enabled(false)

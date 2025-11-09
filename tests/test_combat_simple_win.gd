@@ -2,9 +2,9 @@
 ## 
 ## Tests basic combat mechanics and victory condition.
 
-extends SceneTree
+extends Node
 
-func _init() -> void:
+func _ready() -> void:
 	print("=== Running Combat Simple Win Test ===\n")
 	
 	var all_passed := true
@@ -24,7 +24,7 @@ func _init() -> void:
 	else:
 		print("✗ Some combat simple win tests failed")
 	
-	quit(0 if all_passed else 1)
+	get_tree().quit(0 if all_passed else 1)
 
 func test_simple_victory() -> bool:
 	print("Test: Player wins against weak enemies")
