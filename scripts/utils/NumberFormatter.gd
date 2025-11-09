@@ -5,18 +5,20 @@ extends Node
 
 class_name NumberFormatter
 
+const EPS: float = 1e-9
+
 ## Format a number with short scale notation (K, M, B, T)
 ## Examples: 1234 -> "1.23K", 5_670_000 -> "5.67M", 3_450_000_000 -> "3.45B"
 static func format_short(value: float, precision: int = 2) -> String:
 	var abs_value := absf(value)
-	var sign := "-" if value < 0 else ""
+	var sign_str := "-" if value < 0 else ""
 	
 	# Handle values less than 1000
 	if abs_value < 1000.0:
 		if abs_value == floorf(abs_value):
-			return sign + str(int(abs_value))
+			return sign_str + str(int(abs_value))
 		else:
-			return sign + ("%.2f" % abs_value)
+			return sign_str + ("%.2f" % abs_value)
 	
 	# Define thresholds and suffixes
 	var thresholds := [
@@ -28,16 +30,16 @@ static func format_short(value: float, precision: int = 2) -> String:
 	
 	for threshold in thresholds:
 		if abs_value >= threshold["value"]:
-			var scaled := abs_value / threshold["value"]
+			var scaled: float = abs_value / float(threshold.get("value", 1.0))
 			var format_str := "%%.%df%%s" % precision
-			return sign + (format_str % [scaled, threshold["suffix"]])
+			return sign_str + (format_str % [scaled, threshold.get("suffix", "")])
 	
 	# Fallback for very large numbers (> 1T) - use scientific notation
 	if abs_value >= 1_000_000_000_000.0:
-		return sign + ("%.2e" % abs_value)
+		return sign_str + ("%.2e" % abs_value)
 	
 	# Default case (shouldn't reach here, but just in case)
-	return sign + str(int(abs_value))
+	return sign_str + str(int(abs_value))
 
 ## Format a number with full precision (no abbreviation)
 static func format_full(value: float, decimals: int = 2) -> String:
@@ -67,26 +69,28 @@ static func format_percentage(value: float, decimals: int = 0) -> String:
 ## Format a delta between two values as a percentage change
 ## Returns: "+X.Y%" or "-X.Y%" or "±0%"
 static func format_delta(old_value: float, new_value: float, decimals: int = 1) -> String:
-	if abs(old_value) < 0.0001:  # Avoid division by zero
-		if abs(new_value) < 0.0001:
+	var baseline: float = abs(old_value)
+	if baseline < EPS:
+		# If baseline is ~0, use |new| as a fallback to avoid INF. If still ~0, delta is 0.
+		baseline = abs(new_value)
+		if baseline < EPS:
 			return "±0%"
-		else:
-			return "+∞%"  # New value when old was zero
 	
-	var delta_percent := ((new_value - old_value) / abs(old_value)) * 100.0
-	var sign := "+" if delta_percent > 0.0 else ""
+	var delta: float = new_value - old_value
+	var delta_percent: float = (delta / baseline) * 100.0
+	var sign_str: String = "+" if delta_percent >= 0.0 else ""
 	
 	if abs(delta_percent) < 0.01:
 		return "±0%"
 	
-	var format_str := "%s%%.%df%%%%" % [sign, decimals]
+	var format_str := "%s%%.%df%%%%" % [sign_str, decimals]
 	return format_str % delta_percent
 
 ## Format an effect for display in UI
 ## Returns formatted string like "+5.0 Attack" or "+10% Idle Rate"
 static func format_effect_line(effect: Dictionary) -> String:
-	var effect_type: String = effect.get("type", "")
-	var value: float = effect.get("value", 0.0)
+	var effect_type: String = String(effect.get("type", ""))
+	var value: float = float(effect.get("value", 0.0))
 	
 	match effect_type:
 		Constants.EffectType.COMBAT_ATTACK_ADD:
@@ -104,7 +108,7 @@ static func format_effect_line(effect: Dictionary) -> String:
 		Constants.EffectType.COMBAT_SPEED_ADD:
 			return "+%s Combat Speed" % format_percentage(value)
 		Constants.EffectType.IDLE_RATE_ADD:
-			var resource: String = effect.get("resource", "gold")
+			var resource: String = String(effect.get("resource", "gold"))
 			return "+%.1f %s/sec" % [value, resource.capitalize()]
 		Constants.EffectType.IDLE_RATE_MULTIPLIER:
 			return "+%s Idle Rate" % format_percentage(value)
