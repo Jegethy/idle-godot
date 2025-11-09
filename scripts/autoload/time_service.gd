@@ -4,9 +4,6 @@ extends Node
 ## Manages the game's time-based updates and calculates
 ## offline progression when the player returns.
 
-# Offline progression cap (8 hours in seconds)
-const OFFLINE_HARD_CAP_SEC: float = Constants.OFFLINE_HARD_CAP_SEC
-
 var last_tick_time: float = 0.0
 var accumulated_time: float = 0.0
 
@@ -42,7 +39,7 @@ func apply_offline_progression(now: float, economy: Node, game_state: Node) -> v
 		delta_seconds = 0.0
 	
 	# Apply hard cap
-	delta_seconds = clamp(delta_seconds, 0, OFFLINE_HARD_CAP_SEC)
+	delta_seconds = clamp(delta_seconds, 0, Constants.OFFLINE_HARD_CAP_SEC)
 	
 	# Apply meta upgrade offline gain multiplier
 	var offline_mult := 1.0 + game_state.meta_effects_cache.get("offline_gain_multiplier", 0.0)
@@ -64,7 +61,7 @@ func apply_offline_progression(now: float, economy: Node, game_state: Node) -> v
 					PrestigeService.update_lifetime_gold(gain)
 		
 		var hours: float = delta_seconds / 3600.0
-		print("Applied offline progression for %.2f hours (capped at %.1f hours)" % [hours, OFFLINE_HARD_CAP_SEC / 3600.0])
+		print("Applied offline progression for %.2f hours (capped at %.1f hours)" % [hours, Constants.OFFLINE_HARD_CAP_SEC / 3600.0])
 
 func calculate_offline_progression(last_saved_time: float) -> Dictionary:
 	var current_time: float = Time.get_unix_time_from_system()
