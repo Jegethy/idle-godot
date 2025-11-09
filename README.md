@@ -221,6 +221,197 @@ The optimal prestige timing depends on your progression rate:
 
 Use the **Projected Gain** display in the Prestige Panel to preview your essence reward before confirming.
 
+## ⚔️ Combat System
+
+The Combat System provides wave-based battles against enemies, yielding gold and item drops. Combat is **deterministic** and **seeded** for reproducible outcomes, making it ideal for testing and balancing.
+
+### Core Features
+
+- **Wave-based progression**: Each wave increases in difficulty with scaled enemy stats
+- **Deterministic simulation**: Same seed produces identical combat outcomes
+- **Two simulation modes**: Interactive (tick-by-tick) and Fast (instant resolution)
+- **Essence integration**: Essence provides combat stat bonuses
+- **Item drops**: Enemies drop items based on configured drop tables
+
+### Combat Flow
+
+1. **Start Wave**: Player initiates combat against current wave
+2. **Combat Resolution**: Player and enemies exchange attacks based on combat speed
+3. **Victory/Defeat**: Wave completes when all enemies defeated or player HP reaches zero
+4. **Rewards**: On victory, player receives gold and item drops
+
+### Combat Statistics
+
+Player combat stats are derived from base stats plus essence bonuses:
+
+```
+essence_combat_bonus = 1 + (COMBAT_ESSENCE_MULTIPLIER × sqrt(essence))
+effective_attack = base_attack × essence_combat_bonus
+effective_defense = base_defense × essence_combat_bonus
+player_max_hp = BASE_PLAYER_HP × essence_combat_bonus
+```
+
+**Base Stats** (from `PlayerStatsModel`):
+- **Attack**: 10.0 (base damage per hit)
+- **Defense**: 5.0 (damage reduction)
+- **Crit Chance**: 5% (probability of critical hit)
+- **Crit Multiplier**: 2.0x (damage multiplier on crit)
+- **Combat Speed**: 1.0 (attacks per second)
+
+**Essence Multiplier** (default: 0.01):
+- 0 essence → 1.0× bonus (no change)
+- 100 essence → 1.1× bonus (+10% to attack/defense/HP)
+- 400 essence → 1.2× bonus (+20% to attack/defense/HP)
+
+### Damage Formula
+
+Each attack calculates damage as follows:
+
+```
+base_damage = max(1, attacker_attack - target_defense)
+if critical_hit:
+    final_damage = base_damage × crit_multiplier
+else:
+    final_damage = base_damage
+```
+
+**Attack Timing**:
+- Attack interval = 1.0 / combat_speed
+- Player attacks first enemy in list
+- Each enemy attacks player independently
+
+### Wave Scaling
+
+Enemy stats scale exponentially with wave index:
+
+```
+enemy_hp = base_hp × (hp_growth_factor ^ wave_index)
+enemy_attack = base_attack × (attack_growth_factor ^ wave_index)
+enemy_defense = base_defense × (defense_growth_factor ^ wave_index)
+gold_reward = base_gold × (gold_multiplier ^ wave_index)
+```
+
+**Default Scaling Factors** (from `wave_config.json`):
+- HP Growth: 1.15 (15% increase per wave)
+- Attack Growth: 1.10 (10% increase per wave)
+- Defense Growth: 1.08 (8% increase per wave)
+- Gold Multiplier: 1.05 (5% increase per wave)
+
+**Wave Composition**:
+- Base enemy count: 3
+- Enemy count growth: +0.2 per wave
+- **Elite Wave**: Every 5th wave, last enemy becomes Elite (2.5× HP, 1.5× attack)
+- **Boss Wave**: Every 10th wave, single Boss enemy (5× HP, 2× attack)
+
+### Enemy Types
+
+Defined in `data/enemies.json`:
+
+| Enemy | Base HP | Base Attack | Base Defense | Base Gold |
+|-------|---------|-------------|--------------|-----------|
+| Slime | 50 | 5 | 2 | 10 |
+| Goblin | 75 | 8 | 4 | 15 |
+| Skeleton | 100 | 12 | 6 | 20 |
+| Boss Core | 500 | 25 | 15 | 100 |
+
+### Drop Tables
+
+Each enemy has a configured drop table with weighted probabilities:
+
+```json
+{
+  "item_id": "health_potion",
+  "weight": 10,
+  "min_qty": 1,
+  "max_qty": 2,
+  "chance": 0.2
+}
+```
+
+- **chance**: Probability of drop (0.2 = 20%)
+- **weight**: Relative weight for weighted random selection
+- **min_qty/max_qty**: Quantity range (randomly selected)
+
+### Deterministic Simulation
+
+Combat uses seeded RNG for reproducibility:
+
+```gdscript
+# Same seed produces identical outcomes
+CombatSystem.fast_simulate_wave(wave_index, seed: 12345)
+```
+
+**Use Cases**:
+- Testing combat balance
+- Reproducing bug reports
+- Validating combat formulas
+
+### Interactive vs Fast Simulation
+
+**Interactive Mode** (`Start Wave` button):
+- Combat progresses tick-by-tick (0.5s per tick)
+- UI updates in real-time showing enemy HP bars
+- Combat log displays each hit/crit/defeat event
+- Player can observe combat flow
+
+**Fast Simulation Mode** (`Fast Sim` button):
+- Entire wave resolves instantly
+- Summary displayed immediately
+- No real-time updates
+- Efficient for farming/testing
+
+Both modes produce **identical results** for the same seed.
+
+### Combat Summary
+
+After combat ends, summary statistics are displayed:
+
+- **Time**: Total combat duration (seconds)
+- **Enemies Defeated**: Count of enemies killed
+- **Damage Dealt**: Total player damage output
+- **Damage Taken**: Total player damage received
+- **DPS**: Damage per second (damage_dealt / time)
+- **Rewards**: Gold and items gained (victory only)
+
+### Combat Constants
+
+Tunable constants in `BalanceConstants.gd`:
+
+| Constant | Default | Description |
+|----------|---------|-------------|
+| `COMBAT_TICK_SECONDS` | 0.5 | Duration of each simulation tick |
+| `PLAYER_BASE_CRIT_CHANCE` | 0.05 | 5% base critical hit chance |
+| `PLAYER_BASE_CRIT_MULTIPLIER` | 2.0 | 2x damage on critical hits |
+| `COMBAT_ESSENCE_MULTIPLIER` | 0.01 | Essence bonus scaling factor |
+| `BASE_PLAYER_HP` | 100.0 | Base player HP before bonuses |
+| `ELITE_HP_MULTIPLIER` | 2.5 | Elite enemy HP multiplier |
+| `ELITE_ATTACK_MULTIPLIER` | 1.5 | Elite enemy attack multiplier |
+| `BOSS_HP_MULTIPLIER` | 5.0 | Boss enemy HP multiplier |
+| `BOSS_ATTACK_MULTIPLIER` | 2.0 | Boss enemy attack multiplier |
+| `MAX_SIM_TICKS` | 1000 | Maximum ticks to prevent runaway |
+
+### Save Data
+
+Combat progress is saved with the following fields:
+- **current_wave**: Highest wave completed (auto-increments on victory)
+- **lifetime_enemies_defeated**: Total enemies killed across all time
+
+### Testing
+
+Comprehensive test suite validates:
+- **RNG Determinism**: Same seed produces same random sequences
+- **Wave Scaling**: Enemy stats scale according to formulas
+- **Combat Victory**: Player can defeat weak enemies
+- **Drop Probability**: Drops occur with expected frequency (tolerance)
+- **Mode Equivalence**: Fast and interactive modes yield identical results
+
+Run tests with:
+```bash
+godot --headless --script tests/test_rng_determinism.gd
+godot --headless --script tests/test_wave_scaling.gd
+godot --headless --script tests/test_combat_simple_win.gd
+```
+
 ## 💾 Save/Load Strategy
 
 ### Save Schema v3
@@ -247,17 +438,25 @@ Use the **Projected Gain** display in the Prestige Panel to preview your essence
   "lifetime_gold": 5000000.0,
   "total_prestiges": 3,
   "essence_spent": 0.0,
-  "prestige_settings": {"formula_version": 1}
+  "prestige_settings": {"formula_version": 1},
+  "current_wave": 5,
+  "lifetime_enemies_defeated": 42
 }
 ```
 
 #### Save Schema v3 Changes
 
-New fields added in version 3 for prestige system:
+New fields added in version 3:
+
+**Prestige System**:
 - **lifetime_gold**: Cumulative gold earned across all time (never decreases)
 - **total_prestiges**: Number of times player has prestiged
 - **essence_spent**: Essence used on meta-upgrades (reserved for future use)
 - **prestige_settings**: Versioned prestige formula settings
+
+**Combat System**:
+- **current_wave**: Highest wave completed (increments on victory)
+- **lifetime_enemies_defeated**: Total enemies killed across all sessions
 
 ### Atomic Write Process
 1. Write to `savegame.json.tmp`
@@ -307,11 +506,11 @@ If away for 12 hours, gain is capped at 8 hours:
 - ✅ **PR3**: SaveSystem + offline progression + autosave + debug controls
 - ✅ **PR4**: Structured Game UI + Upgrade Purchase Enhancements + Tooltips + Number Formatting
 - ✅ **PR5**: Prestige Mechanic + Essence Currency + Reset Flow + UI Integration
+- ✅ **PR6**: Combat System Expansion (Wave-based, Scaling, Drops, Essence Integration, Deterministic Sim, UI, Tests)
 
 ### Planned
-- ⬜ **PR6**: Items & InventorySystem
-- ⬜ **PR7**: CombatSystem with wave simulation
-- ⬜ **PR8**: Enemy drop tables, item rewards
+- ⬜ **PR7**: Items & InventorySystem enhancements
+- ⬜ **PR8**: Additional combat features (abilities, status effects)
 - ⬜ **PR9**: Balancing, analytics, polish
 
 ## 🚀 Getting Started
@@ -344,7 +543,7 @@ upgrades["upgrade_id"] = new_upgrade
 |---------|---------|
 | 1       | Initial schema with resources, upgrades, items, player stats, essence |
 | 2       | Added `last_saved_time` for offline progression, ensured all known resources present, atomic write with backup |
-| 3       | Added prestige fields: `lifetime_gold`, `total_prestiges`, `essence_spent`, `prestige_settings` |
+| 3       | Added prestige fields: `lifetime_gold`, `total_prestiges`, `essence_spent`, `prestige_settings`; Added combat fields: `current_wave`, `lifetime_enemies_defeated` |
 
 ## ⚖️ Tuning Constants
 
