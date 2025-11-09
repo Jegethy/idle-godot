@@ -718,6 +718,151 @@ upgrades["upgrade_id"] = new_upgrade
 | 2       | Added `last_saved_time` for offline progression, ensured all known resources present, atomic write with backup |
 | 3       | Added prestige fields: `lifetime_gold`, `total_prestiges`, `essence_spent`, `prestige_settings`; Added combat fields: `current_wave`, `lifetime_enemies_defeated` |
 | 4       | Added inventory fields: `inventory` array with full item serialization, `equipped_slots` dictionary mapping slots to instance IDs |
+| 5       | Added affix fields: `base_id`, `affixes` array, `reroll_count` for procedurally generated item variants |
+
+## 🎲 Affix System
+
+The Affix System adds procedural item generation with prefixes and suffixes that modify item stats.
+
+### How Affixes Work
+
+Items dropped from enemies can roll **affixes** based on their **rarity**:
+- **Common**: Max 1 affix
+- **Uncommon**: Max 1 affix
+- **Rare**: Max 2 affixes
+- **Epic**: Max 2 affixes
+- **Legendary**: Max 3 affixes
+
+Each affix provides **scaled effects** based on:
+1. **Rarity Scaling**: Higher rarities have stronger effect multipliers
+2. **Wave Scaling**: Effects increase with wave progression (capped at wave 100)
+
+### Affix Formula
+
+For each affix effect:
+```
+value = base × rarity_scaling[rarity] × (1 + per_wave_factor × wave_index)
+```
+
+**Example**: "Sharp" prefix on a Rare item at wave 10:
+```
+base = 2.0
+rarity_scaling["rare"] = 1.5
+per_wave_factor = 0.25
+value = 2.0 × 1.5 × (1 + 0.25 × 10) = 2.0 × 1.5 × 3.5 = 10.5 attack
+```
+
+### Affix Categories
+
+**Prefixes** (combat-focused):
+- Sharp: +Attack
+- Fortified: +Defense
+- Swift: +Combat Speed
+- Deadly: +Crit Chance
+- Powerful: +Attack Multiplier
+- Reinforced: +Defense Multiplier
+
+**Suffixes** (utility-focused):
+- Gleaming: +Idle Rate Multiplier
+- Prosperity: +Gold per Second
+- Precision: +Crit Damage
+- Essence: +Essence Multiplier
+- Vigor: +Attack and Defense
+- Balance: +Attack and Defense Multipliers
+
+### Rarity-Weighted Drops
+
+Items roll rarity using weighted distribution:
+- Common: 60% (weight: 60)
+- Uncommon: 25% (weight: 25)
+- Rare: 10% (weight: 10)
+- Epic: 4% (weight: 4)
+- Legendary: 1% (weight: 1)
+
+**Rarity Factor**: Elite and boss enemies have boosted drop quality.
+
+### Deterministic Generation
+
+Affixes use seeded RNG for reproducibility:
+```gdscript
+var rng := RNGService.new()
+rng.set_seed(12345)
+var item := AffixService.generate_item_instance(item_def, "rare", 10, rng)
+# Same seed always produces same affixes with same values
+```
+
+## 🔄 Item Rerolling
+
+Players can reroll item affixes at increasing cost:
+
+### Reroll Cost Formula
+
+```
+gold_cost = BASE_REROLL_GOLD × (REROLL_GOLD_GROWTH ^ reroll_count)
+essence_cost = BASE_REROLL_ESSENCE × (REROLL_ESSENCE_GROWTH ^ reroll_count)
+```
+
+**Default Constants**:
+- `BASE_REROLL_GOLD`: 250
+- `REROLL_GOLD_GROWTH`: 1.35
+- `BASE_REROLL_ESSENCE`: 1
+- `REROLL_ESSENCE_GROWTH`: 1.25
+- `MAX_REROLL_COUNT`: 50 (soft cap)
+
+**Cost Progression Example**:
+| Reroll # | Gold Cost | Essence Cost |
+|----------|-----------|--------------|
+| 1st      | 250       | 1.0          |
+| 2nd      | 338       | 1.3          |
+| 3rd      | 456       | 1.6          |
+| 5th      | 831       | 2.4          |
+| 10th     | 5,024     | 9.3          |
+
+### Usage
+
+```gdscript
+# Check reroll cost
+var cost_info := InventorySystem.get_reroll_cost(item_instance_id)
+print("Costs: %d gold, %.1f essence" % [cost_info["gold"], cost_info["essence"]])
+
+# Reroll affixes
+if InventorySystem.reroll_item(item_instance_id):
+    print("Item rerolled successfully!")
+```
+
+## 📊 Gear Analyzer
+
+The Gear Analyzer compares candidate items against currently equipped items.
+
+### Comparison Metrics
+
+The analyzer calculates:
+- **Combat DPS Delta**: Percentage change in damage per second
+- **Idle Rate Delta**: Percentage change in idle gold generation
+- **Attack Delta**: Raw attack difference
+- **Defense Delta**: Raw defense difference
+- **Crit Chance Delta**: Critical hit chance difference
+
+### Improvement Threshold
+
+An item is marked as "recommended" if:
+- DPS improves by > 0.5% (`ANALYZER_MIN_IMPROVEMENT_THRESHOLD`)
+- OR Idle rate improves by > 0.5%
+
+### Usage
+
+```gdscript
+# Compare candidate vs equipped
+var comparison := GearAnalyzer.compare_items(candidate_item, "weapon")
+
+if comparison["is_improvement"]:
+    print("DPS Change: %.1f%%" % comparison["dps_delta_pct"])
+    print("Idle Change: %.1f%%" % comparison["idle_delta_pct"])
+    
+# Get formatted text
+var text := GearAnalyzer.get_comparison_text(comparison)
+print(text)  # Shows all deltas with recommendation
+```
 
 ## ⚖️ Tuning Constants
 
