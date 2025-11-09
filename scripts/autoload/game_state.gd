@@ -16,8 +16,8 @@ signal resource_changed(resource_id: String, new_amount: float)
 # - item_acquired -> InventorySystem
 
 # State data
-var resources: Dictionary = {}  # {id: ResourceModel}
-var upgrades: Dictionary = {}   # {id: UpgradeModel}
+var resources: Dictionary[String, ResourceModel] = {}  # {id: ResourceModel}
+var upgrades: Dictionary[String, UpgradeModel] = {}   # {id: UpgradeModel}
 var items: Array[ItemModel] = []
 var player_stats: PlayerStatsModel = null
 var essence: float = 0.0
@@ -36,10 +36,10 @@ var current_wave: int = 0
 var lifetime_enemies_defeated: int = 0
 
 # Inventory & Equipment state
-var equipped_slots: Dictionary = {}  # {slot: instance_id}
+var equipped_slots: Dictionary[String, String] = {}  # {slot: instance_id}
 
 # Computed modifiers from items (cached for performance)
-var idle_additive: Dictionary = {}  # {resource_id: float} - sum of additive bonuses
+var idle_additive: Dictionary[String, float] = {}  # {resource_id: float} - sum of additive bonuses
 var idle_multiplier_extra: float = 1.0  # Multiplicative bonus from items
 var combat_modifiers: Dictionary = {
 	"attack_add": 0.0,

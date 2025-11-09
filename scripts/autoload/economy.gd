@@ -10,7 +10,7 @@ signal rates_updated()
 const EXP_GROWTH := 1.15
 
 # Cached per-second rates for UI queries
-var per_second_rates: Dictionary = {}  # {resource_id: float}
+var per_second_rates: Dictionary[String, float] = {}  # {resource_id: float}
 
 func _ready() -> void:
 	print("Economy initialized")
