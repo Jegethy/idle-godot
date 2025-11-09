@@ -1,0 +1,119 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8e9f0g1h2i3j"]
+
+[ext_resource type="Script" path="res://scenes/ui/CombatPanel.gd" id="1_combat"]
+
+[node name="CombatPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 400)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_combat")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 15
+theme_override_constants/margin_bottom = 15
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Combat System"
+
+[node name="HSeparator" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="WaveInfo" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="WaveLabel" type="Label" parent="MarginContainer/VBoxContainer/WaveInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Current Wave: 0"
+
+[node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer/WaveInfo"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StartWaveButton" type="Button" parent="MarginContainer/VBoxContainer/WaveInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Start Wave"
+
+[node name="FastSimButton" type="Button" parent="MarginContainer/VBoxContainer/WaveInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Fast Sim"
+
+[node name="PlayerStats" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="PlayerStatsTitle" type="Label" parent="MarginContainer/VBoxContainer/PlayerStats"]
+layout_mode = 2
+text = "Player Stats"
+theme_override_font_sizes/font_size = 14
+
+[node name="PlayerStatsLabel" type="Label" parent="MarginContainer/VBoxContainer/PlayerStats"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Attack: 10 | Defense: 5 | Crit: 5.0% (2.0x) | Speed: 1.0x"
+theme_override_font_sizes/font_size = 12
+
+[node name="HSeparator2" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="EnemySection" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EnemyTitle" type="Label" parent="MarginContainer/VBoxContainer/EnemySection"]
+layout_mode = 2
+text = "Enemies"
+theme_override_font_sizes/font_size = 14
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer/VBoxContainer/EnemySection"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="EnemyListContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/EnemySection/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 5
+
+[node name="HSeparator3" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="LogSection" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LogTitle" type="Label" parent="MarginContainer/VBoxContainer/LogSection"]
+layout_mode = 2
+text = "Combat Log"
+theme_override_font_sizes/font_size = 14
+
+[node name="CombatLog" type="RichTextLabel" parent="MarginContainer/VBoxContainer/LogSection"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_following = true
+
+[node name="HSeparator4" type="HSeparator" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="SummaryLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ""
+theme_override_font_sizes/font_size = 12

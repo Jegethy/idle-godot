@@ -110,6 +110,8 @@ func save_game() -> bool:
 	save_data.total_prestiges = GameState.total_prestiges
 	save_data.essence_spent = GameState.essence_spent
 	save_data.prestige_settings = {"formula_version": BalanceConstants.PRESTIGE_FORMULA_VERSION}
+	save_data.current_wave = GameState.current_wave
+	save_data.lifetime_enemies_defeated = GameState.lifetime_enemies_defeated
 	
 	# Atomic write: write to .tmp, then rename
 	var save_path := Constants.SAVE_FILE_PATH
@@ -202,6 +204,8 @@ func load_game() -> bool:
 	GameState.lifetime_gold = save_data.lifetime_gold
 	GameState.total_prestiges = save_data.total_prestiges
 	GameState.essence_spent = save_data.essence_spent
+	GameState.current_wave = save_data.current_wave
+	GameState.lifetime_enemies_defeated = save_data.lifetime_enemies_defeated
 	
 	# Store last_saved_time for offline progression and UI display
 	last_saved_time = save_data.last_saved_time

@@ -1,0 +1,19 @@
+{
+  "wave_scaling": {
+    "hp_growth_factor": 1.15,
+    "attack_growth_factor": 1.10,
+    "defense_growth_factor": 1.08,
+    "gold_reward_multiplier_per_wave": 1.05
+  },
+  "wave_composition": {
+    "base_enemy_count": 3,
+    "enemy_count_growth_per_wave": 0.2,
+    "elite_every_n": 5,
+    "boss_every_m": 10
+  },
+  "enemy_rotation": [
+    "slime",
+    "goblin",
+    "skeleton"
+  ]
+}
