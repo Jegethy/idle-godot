@@ -17,7 +17,9 @@ static func simulate_idle_gain(loadout: Array, base_rate: float) -> float:
 		if not item is ItemModel:
 			continue
 		
-		for effect in item.effects:
+		# Use compute_total_effects to include affixes
+		var total_effects := item.compute_total_effects()
+		for effect in total_effects:
 			var effect_type: String = effect.get("type", "")
 			var value: float = effect.get("value", 0.0)
 			
@@ -50,7 +52,9 @@ static func simulate_combat_dps(loadout: Array, base_attack: float, essence: flo
 		if not item is ItemModel:
 			continue
 		
-		for effect in item.effects:
+		# Use compute_total_effects to include affixes
+		var total_effects := item.compute_total_effects()
+		for effect in total_effects:
 			var effect_type: String = effect.get("type", "")
 			var value: float = effect.get("value", 0.0)
 			
@@ -110,7 +114,9 @@ static func calculate_loadout_stats(loadout: Array, base_attack: float = 10.0, b
 		if not item is ItemModel:
 			continue
 		
-		for effect in item.effects:
+		# Use compute_total_effects to include affixes
+		var total_effects := item.compute_total_effects()
+		for effect in total_effects:
 			var effect_type: String = effect.get("type", "")
 			var value: float = effect.get("value", 0.0)
 			

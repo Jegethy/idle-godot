@@ -26,6 +26,7 @@ PrestigeService="*res://scripts/systems/PrestigeService.gd"
 RNGService="*res://scripts/systems/RNGService.gd"
 EnemyDatabase="*res://scripts/systems/EnemyDatabase.gd"
 DropService="*res://scripts/systems/DropService.gd"
+AffixService="*res://scripts/systems/AffixService.gd"
 
 [display]
 

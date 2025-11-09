@@ -7,10 +7,11 @@ class_name DropService
 
 ## Compute rewards from defeated enemies
 ## enemies_defeated: Array of enemy Dictionaries
-## Returns: Dictionary with {gold: float, items: Array[Dictionary]}
-func compute_rewards(enemies_defeated: Array, rng_service: RNGService) -> Dictionary:
+## wave_index: Current wave for affix scaling
+## Returns: Dictionary with {gold: float, items: Array[ItemModel]}
+func compute_rewards(enemies_defeated: Array, rng_service: RNGService, wave_index: int = 0) -> Dictionary:
 	var total_gold := 0.0
-	var items: Array[Dictionary] = []
+	var items: Array[ItemModel] = []
 	
 	for enemy in enemies_defeated:
 		if not enemy is Dictionary:
@@ -18,6 +19,9 @@ func compute_rewards(enemies_defeated: Array, rng_service: RNGService) -> Dictio
 		
 		# Add gold reward
 		total_gold += enemy.get("gold_reward", 0.0)
+		
+		# Get enemy rarity factor for loot quality boost
+		var rarity_factor: float = enemy.get("rarity_factor", 1.0)
 		
 		# Process drop table
 		var drop_table: Array = enemy.get("drop_table", [])
@@ -28,23 +32,32 @@ func compute_rewards(enemies_defeated: Array, rng_service: RNGService) -> Dictio
 			var chance: float = drop_entry.get("chance", 0.0)
 			if rng_service.chance(chance):
 				var item_id: String = drop_entry.get("item_id", "")
-				var min_qty: int = drop_entry.get("min_qty", 1)
-				var max_qty: int = drop_entry.get("max_qty", 1)
-				var quantity: int = rng_service.rand_range(min_qty, max_qty)
 				
-				# Check if we already have this item in the list
-				var found := false
-				for item in items:
-					if item.get("item_id", "") == item_id:
-						item["quantity"] = item.get("quantity", 0) + quantity
-						found = true
-						break
+				# Get item definition
+				if not InventorySystem.item_definitions.has(item_id):
+					continue
 				
-				if not found:
-					items.append({
-						"item_id": item_id,
-						"quantity": quantity
-					})
+				var item_def: Dictionary = InventorySystem.item_definitions[item_id]
+				
+				# Skip stackable items (they don't get affixes)
+				if item_def.get("stackable", false):
+					var min_qty: int = drop_entry.get("min_qty", 1)
+					var max_qty: int = drop_entry.get("max_qty", 1)
+					var quantity: int = rng_service.rand_range(min_qty, max_qty)
+					
+					# Add directly without affixes
+					for i in range(quantity):
+						var item := ItemModel.new()
+						item.from_dict(item_def)
+						items.append(item)
+					continue
+				
+				# Roll rarity with enemy rarity factor boost
+				var rarity: String = AffixService.roll_rarity(rng_service, rarity_factor)
+				
+				# Generate item instance with affixes
+				var item := AffixService.generate_item_instance(item_def, rarity, wave_index, rng_service)
+				items.append(item)
 	
 	return {
 		"gold": total_gold,
@@ -63,12 +76,17 @@ func apply_rewards(rewards: Dictionary) -> void:
 	
 	# Add items via InventorySystem
 	var items: Array = rewards.get("items", [])
-	for item_dict in items:
-		if not item_dict is Dictionary:
-			continue
-		var item_id: String = item_dict.get("item_id", "")
-		var quantity: int = item_dict.get("quantity", 1)
-		
-		# Add item to inventory using InventorySystem
-		if not item_id.is_empty():
-			InventorySystem.add_item(item_id, quantity)
+	for item in items:
+		if item is ItemModel:
+			# Add ItemModel instance directly
+			GameState.items.append(item)
+			InventorySystem.inventory_changed.emit()
+			InventorySystem.item_added.emit(item.instance_id)
+			GameState.item_acquired.emit(item.id, 1)
+			print("Item added: %s (rarity: %s, affixes: %d)" % [item.display_name, item.rarity, item.affixes.size()])
+		elif item is Dictionary:
+			# Legacy path for simple item dictionaries
+			var item_id: String = item.get("item_id", "")
+			var quantity: int = item.get("quantity", 1)
+			if not item_id.is_empty():
+				InventorySystem.add_item(item_id, quantity)

@@ -1,0 +1,243 @@
+{
+	"affixes": [
+		{
+			"id": "sharp",
+			"category": "prefix",
+			"effects": [
+				{
+					"type": "combat_attack_add",
+					"base": 2.0,
+					"per_wave_factor": 0.25
+				}
+			],
+			"rarity_scaling": {
+				"common": 1.0,
+				"uncommon": 1.2,
+				"rare": 1.5,
+				"epic": 2.0,
+				"legendary": 2.75
+			},
+			"weight": 20
+		},
+		{
+			"id": "fortified",
+			"category": "prefix",
+			"effects": [
+				{
+					"type": "combat_defense_add",
+					"base": 2.0,
+					"per_wave_factor": 0.2
+				}
+			],
+			"rarity_scaling": {
+				"common": 1.0,
+				"uncommon": 1.2,
+				"rare": 1.5,
+				"epic": 2.0,
+				"legendary": 2.75
+			},
+			"weight": 20
+		},
+		{
+			"id": "swift",
+			"category": "prefix",
+			"effects": [
+				{
+					"type": "combat_speed_add",
+					"base": 0.05,
+					"per_wave_factor": 0.005
+				}
+			],
+			"rarity_scaling": {
+				"common": 1.0,
+				"uncommon": 1.15,
+				"rare": 1.35,
+				"epic": 1.7,
+				"legendary": 2.3
+			},
+			"weight": 15
+		},
+		{
+			"id": "deadly",
+			"category": "prefix",
+			"effects": [
+				{
+					"type": "combat_crit_chance_add",
+					"base": 0.02,
+					"per_wave_factor": 0.002
+				}
+			],
+			"rarity_scaling": {
+				"common": 1.0,
+				"uncommon": 1.25,
+				"rare": 1.5,
+				"epic": 1.9,
+				"legendary": 2.5
+			},
+			"weight": 12
+		},
+		{
+			"id": "powerful",
+			"category": "prefix",
+			"effects": [
+				{
+					"type": "combat_attack_mult",
+					"base": 0.05,
+					"per_wave_factor": 0.005
+				}
+			],
+			"rarity_scaling": {
+				"common": 1.0,
+				"uncommon": 1.2,
+				"rare": 1.5,
+				"epic": 2.0,
+				"legendary": 2.8
+			},
+			"weight": 10
+		},
+		{
+			"id": "reinforced",
+			"category": "prefix",
+			"effects": [
+				{
+					"type": "combat_defense_mult",
+					"base": 0.05,
+					"per_wave_factor": 0.004
+				}
+			],
+			"rarity_scaling": {
+				"common": 1.0,
+				"uncommon": 1.2,
+				"rare": 1.5,
+				"epic": 2.0,
+				"legendary": 2.8
+			},
+			"weight": 10
+		},
+		{
+			"id": "gleaming",
+			"category": "suffix",
+			"effects": [
+				{
+					"type": "idle_rate_multiplier",
+					"base": 0.02,
+					"per_wave_factor": 0.001
+				}
+			],
+			"rarity_scaling": {
+				"common": 1.0,
+				"uncommon": 1.1,
+				"rare": 1.25,
+				"epic": 1.6,
+				"legendary": 2.2
+			},
+			"weight": 15
+		},
+		{
+			"id": "prosperity",
+			"category": "suffix",
+			"effects": [
+				{
+					"type": "idle_rate_add",
+					"base": 1.0,
+					"per_wave_factor": 0.15,
+					"resource": "gold"
+				}
+			],
+			"rarity_scaling": {
+				"common": 1.0,
+				"uncommon": 1.15,
+				"rare": 1.35,
+				"epic": 1.75,
+				"legendary": 2.4
+			},
+			"weight": 18
+		},
+		{
+			"id": "precision",
+			"category": "suffix",
+			"effects": [
+				{
+					"type": "combat_crit_multiplier_add",
+					"base": 0.1,
+					"per_wave_factor": 0.01
+				}
+			],
+			"rarity_scaling": {
+				"common": 1.0,
+				"uncommon": 1.2,
+				"rare": 1.45,
+				"epic": 1.85,
+				"legendary": 2.5
+			},
+			"weight": 12
+		},
+		{
+			"id": "essence",
+			"category": "suffix",
+			"effects": [
+				{
+					"type": "essence_multiplier",
+					"base": 0.01,
+					"per_wave_factor": 0.001
+				}
+			],
+			"rarity_scaling": {
+				"common": 1.0,
+				"uncommon": 1.3,
+				"rare": 1.7,
+				"epic": 2.3,
+				"legendary": 3.5
+			},
+			"weight": 8
+		},
+		{
+			"id": "vigor",
+			"category": "suffix",
+			"effects": [
+				{
+					"type": "combat_attack_add",
+					"base": 1.5,
+					"per_wave_factor": 0.2
+				},
+				{
+					"type": "combat_defense_add",
+					"base": 1.5,
+					"per_wave_factor": 0.15
+				}
+			],
+			"rarity_scaling": {
+				"common": 1.0,
+				"uncommon": 1.2,
+				"rare": 1.5,
+				"epic": 2.0,
+				"legendary": 2.75
+			},
+			"weight": 10
+		},
+		{
+			"id": "balance",
+			"category": "suffix",
+			"effects": [
+				{
+					"type": "combat_attack_mult",
+					"base": 0.03,
+					"per_wave_factor": 0.003
+				},
+				{
+					"type": "combat_defense_mult",
+					"base": 0.03,
+					"per_wave_factor": 0.002
+				}
+			],
+			"rarity_scaling": {
+				"common": 1.0,
+				"uncommon": 1.2,
+				"rare": 1.5,
+				"epic": 2.0,
+				"legendary": 2.8
+			},
+			"weight": 9
+		}
+	]
+}

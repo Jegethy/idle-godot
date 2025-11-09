@@ -1,0 +1,32 @@
+{
+	"rarity_base_weights": {
+		"common": 60,
+		"uncommon": 25,
+		"rare": 10,
+		"epic": 4,
+		"legendary": 1
+	},
+	"affix_roll_chance": {
+		"prefix": {
+			"common": 0.30,
+			"uncommon": 0.45,
+			"rare": 0.65,
+			"epic": 0.80,
+			"legendary": 0.95
+		},
+		"suffix": {
+			"common": 0.25,
+			"uncommon": 0.40,
+			"rare": 0.60,
+			"epic": 0.78,
+			"legendary": 0.90
+		}
+	},
+	"max_affixes_per_rarity": {
+		"common": 1,
+		"uncommon": 1,
+		"rare": 2,
+		"epic": 2,
+		"legendary": 3
+	}
+}

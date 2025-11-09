@@ -280,7 +280,8 @@ func _enemy_defeated(enemy: Dictionary) -> void:
 ## End combat with victory
 func _end_combat_victory() -> void:
 	# Calculate rewards
-	var rewards := DropService.compute_rewards(enemies_defeated, RNGService)
+	# Compute rewards using DropService (pass wave index for affix scaling)
+	var rewards := DropService.compute_rewards(enemies_defeated, RNGService, wave_index)
 	
 	# Apply rewards
 	DropService.apply_rewards(rewards)

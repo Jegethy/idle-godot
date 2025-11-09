@@ -7,6 +7,7 @@ signal item_added(instance_id: String)
 signal item_equipped(slot: String, instance_id: String)
 signal item_unequipped(slot: String, instance_id: String)
 signal inventory_changed()
+signal item_rerolled(instance_id: String, affixes: Array)
 
 # Item database loaded from items.json
 var item_definitions: Dictionary = {}  # {id: Dictionary} - raw item data
@@ -210,7 +211,10 @@ func recompute_all_modifiers() -> void:
 	])
 
 func _apply_item_effects(item: ItemModel) -> void:
-	for effect in item.effects:
+	# Use compute_total_effects to get base + affix effects
+	var total_effects := item.compute_total_effects()
+	
+	for effect in total_effects:
 		var effect_type: String = effect.get("type", "")
 		var value: float = effect.get("value", 0.0)
 		
@@ -242,7 +246,10 @@ func _apply_item_effects(item: ItemModel) -> void:
 func describe_item(item: ItemModel) -> String:
 	var lines: Array[String] = []
 	
-	for effect in item.effects:
+	# Use compute_total_effects to get base + affix effects
+	var total_effects := item.compute_total_effects()
+	
+	for effect in total_effects:
 		var effect_type: String = effect.get("type", "")
 		var value: float = effect.get("value", 0.0)
 		
@@ -268,3 +275,97 @@ func describe_item(item: ItemModel) -> String:
 				lines.append("+%s Idle Rate" % NumberFormatter.format_percentage(value))
 	
 	return "\n".join(lines)
+
+## Reroll affixes on an item (consumes gold and optional essence)
+func reroll_item(instance_id: String) -> bool:
+	# Find the item
+	var item: ItemModel = get_item_by_instance_id(instance_id)
+	if not item:
+		push_error("Item not found for reroll: %s" % instance_id)
+		return false
+	
+	# Check if item is stackable (cannot reroll stackable items)
+	if item.stackable:
+		push_error("Cannot reroll stackable items")
+		return false
+	
+	# Check reroll count cap
+	if item.reroll_count >= BalanceConstants.MAX_REROLL_COUNT:
+		push_error("Item has reached maximum reroll count")
+		return false
+	
+	# Calculate costs
+	var gold_cost: float = BalanceConstants.BASE_REROLL_GOLD * pow(BalanceConstants.REROLL_GOLD_GROWTH, item.reroll_count)
+	var essence_cost: float = BalanceConstants.BASE_REROLL_ESSENCE * pow(BalanceConstants.REROLL_ESSENCE_GROWTH, item.reroll_count)
+	
+	# Check if player has enough resources
+	var current_gold: float = GameState.resources.get("gold", ResourceModel.new()).amount
+	if current_gold < gold_cost:
+		push_error("Not enough gold for reroll (need %.0f, have %.0f)" % [gold_cost, current_gold])
+		return false
+	
+	# Optional: check essence if needed
+	if essence_cost > 0.0 and GameState.essence < essence_cost:
+		push_error("Not enough essence for reroll (need %.1f, have %.1f)" % [essence_cost, GameState.essence])
+		return false
+	
+	# Deduct costs
+	GameState.add_resource_amount("gold", -gold_cost)
+	if essence_cost > 0.0:
+		GameState.essence -= essence_cost
+	
+	# Check if item is currently equipped
+	var was_equipped := false
+	var equipped_slot := ""
+	for slot in GameState.equipped_slots:
+		if GameState.equipped_slots[slot] == instance_id:
+			was_equipped = true
+			equipped_slot = slot
+			break
+	
+	# Generate new affixes using current wave index
+	var wave_index: int = GameState.current_wave
+	var new_affixes := AffixService.roll_affixes(
+		{"id": item.base_id},  # Use base_id for affix rolling
+		item.rarity,
+		wave_index,
+		RNGService
+	)
+	
+	# Update item
+	item.affixes = new_affixes
+	item.reroll_count += 1
+	item.invalidate_cache()
+	
+	# If item was equipped, recompute modifiers
+	if was_equipped:
+		recompute_all_modifiers()
+	
+	# Emit signal
+	item_rerolled.emit(instance_id, new_affixes)
+	inventory_changed.emit()
+	
+	print("Item rerolled: %s (cost: %.0f gold, %.1f essence, count: %d)" % [
+		item.display_name, gold_cost, essence_cost, item.reroll_count
+	])
+	
+	return true
+
+## Calculate reroll cost for an item
+func get_reroll_cost(instance_id: String) -> Dictionary:
+	var item: ItemModel = get_item_by_instance_id(instance_id)
+	if not item:
+		return {"gold": 0.0, "essence": 0.0, "can_afford": false}
+	
+	var gold_cost: float = BalanceConstants.BASE_REROLL_GOLD * pow(BalanceConstants.REROLL_GOLD_GROWTH, item.reroll_count)
+	var essence_cost: float = BalanceConstants.BASE_REROLL_ESSENCE * pow(BalanceConstants.REROLL_ESSENCE_GROWTH, item.reroll_count)
+	
+	var current_gold: float = GameState.resources.get("gold", ResourceModel.new()).amount
+	var can_afford: bool = current_gold >= gold_cost and GameState.essence >= essence_cost
+	
+	return {
+		"gold": gold_cost,
+		"essence": essence_cost,
+		"can_afford": can_afford
+	}
+
